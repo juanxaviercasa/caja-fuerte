@@ -5,7 +5,7 @@ import {
   Play, Settings, Database, Cloud, BrainCircuit, Server, ArrowRight, Zap, 
   Activity, CheckCircle2, RefreshCw, Search, Filter, ChevronRight, ChevronLeft, Info, X, Code2,
   ZoomIn, ZoomOut, Maximize, Minimize, Map, BookOpen, GitMerge, ArrowDown,
-  MessageSquare, Trash2, Send, Bot, Sparkles, User
+  MessageSquare, Trash2, Send, Bot, Sparkles, User, Download
 } from 'lucide-react';
 import { BUSINESS_TEMPLATES } from '../../data/workflowTemplates';
 
@@ -440,7 +440,17 @@ Recuerda ir a tu Bóveda y crear un Nuevo Secreto con la API Key correspondiente
         
         {/* Toggle Switch Arquitectura vs Estrategia */}
         {activeTemplate && nodes.length > 0 && (
-          <div className={`absolute top-4 z-30 bg-vault-900 border border-slate-700 p-1 rounded-xl flex items-center shadow-2xl transition-all duration-300 ${selectedNode && viewMode === 'canvas' ? 'right-[340px]' : 'right-4 md:right-8'}`}>
+          <div className={`absolute top-4 z-30 flex items-center gap-2 transition-all duration-300 ${selectedNode && viewMode === 'canvas' ? 'right-[340px]' : 'right-4 md:right-8'}`}>
+            
+            <button 
+              onClick={handleExportJSON}
+              className="px-3 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-bold flex items-center gap-2 transition-colors shadow-lg"
+              title="Exportar JSON para Make.com o n8n"
+            >
+              <Download className="w-4 h-4" /> <span className="hidden sm:inline">Exportar JSON</span>
+            </button>
+            
+            <div className="bg-vault-900 border border-slate-700 p-1 rounded-xl flex items-center shadow-2xl">
             <button 
               onClick={() => setViewMode('canvas')}
               className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors ${viewMode === 'canvas' ? 'bg-indigo-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
@@ -452,7 +462,8 @@ Recuerda ir a tu Bóveda y crear un Nuevo Secreto con la API Key correspondiente
               className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors ${viewMode === 'strategy' ? 'bg-indigo-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}
             >
               <Map className="w-4 h-4" /> Estrategia de Negocio
-            </button>
+              </button>
+            </div>
           </div>
         )}
 
