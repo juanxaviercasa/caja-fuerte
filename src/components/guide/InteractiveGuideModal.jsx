@@ -2,329 +2,312 @@ import React, { useState } from 'react';
 import { 
   BookOpen, 
   Sparkles, 
-  Key, 
-  FileCode, 
-  ExternalLink, 
+  BrainCircuit, 
+  Terminal, 
   ShieldCheck, 
-  Layers, 
+  Lock, 
+  Check, 
+  Copy, 
+  ExternalLink, 
+  FolderKanban, 
   Zap, 
-  Bot, 
-  FolderKanban,
-  CheckCircle2,
-  AlertTriangle,
-  Code,
-  Terminal,
-  Cpu
+  Database, 
+  Search,
+  Globe,
+  Mic,
+  Cpu,
+  Layers
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
+import { PROVIDER_TEMPLATES } from '../../data/providers';
 
 export function InteractiveGuideModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState('structure');
+  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'structure' | 'env-usage' | 'devops' | 'security'
+  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState('all');
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
 
-  const tabs = [
-    { id: 'structure', label: '1. ¿Qué guardar y cómo organizarlo?', icon: FolderKanban },
-    { id: 'freeAi', label: '2. Catálogo de IA Gratuita (Paso a Paso)', icon: Sparkles },
-    { id: 'envWorkflow', label: '3. Uso de .env en Código Real', icon: FileCode },
-    { id: 'devops', label: '4. Despliegue, Git y DevOps', icon: Terminal },
-    { id: 'security', label: '5. Seguridad y Respaldos', icon: ShieldCheck }
-  ];
+  const handleCopy = (id, text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const filteredCatalog = PROVIDER_TEMPLATES.filter(p => {
+    const matchCat = catalogCategoryFilter === 'all' || p.category === catalogCategoryFilter;
+    const matchSearch = p.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+                        p.description.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+                        p.defaultVarName.toLowerCase().includes(catalogSearch.toLowerCase());
+    return matchCat && matchSearch;
+  });
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Manual Interactivo: Centro de Comando y Buenas Prácticas"
-      maxWidth="max-w-4xl"
+      title="Centro de Aprendizaje: Manual Pro & Catálogo de IA Gratuita"
+      maxWidth="max-w-5xl"
       icon={BookOpen}
     >
-      <div className="space-y-5">
+      <div className="space-y-6">
         
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-1.5 border-b border-slate-800 pb-3">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            const isSelected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                    : 'bg-vault-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+          <button
+            type="button"
+            onClick={() => setActiveTab('catalog')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'catalog'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span>Catálogo 30+ APIs Cloud Gratuitas</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('structure')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'structure'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <FolderKanban className="w-4 h-4 text-cyan-400" />
+            <span>Estructura de Proyectos</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('env-usage')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'env-usage'
+                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Terminal className="w-4 h-4 text-blue-400" />
+            <span>Cómo Usar .env en Código Real</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('devops')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'devops'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <span>Buenas Prácticas Git & CI/CD</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('security')}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'security'
+                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            <Lock className="w-4 h-4 text-purple-400" />
+            <span>Seguridad Zero-Knowledge</span>
+          </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-4 bg-vault-950/80 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-4 leading-relaxed max-h-[65vh] overflow-y-auto">
-          
-          {/* TAB 1: STRUCTURE */}
-          {activeTab === 'structure' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200">
-                <h4 className="font-bold text-sm text-emerald-300 flex items-center gap-2 mb-1">
-                  <FolderKanban className="w-4 h-4" />
-                  Estrategia de Organización de Claves y Secretos
-                </h4>
-                <p>
-                  A medida que construyes múltiples aplicaciones (chatbots, generadores de contenido, SaaS, scripts), la mejor práctica de ingeniería es separar las <strong>Claves Globales</strong> de las <strong>Claves Específicas de Proyecto</strong>.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <span className="font-bold text-slate-100 flex items-center gap-1.5 text-cyan-400">
-                    <Sparkles className="w-4 h-4" /> 1. Claves Globales / Reutilizables
-                  </span>
-                  <p className="text-slate-400">
-                    Son tus cuentas personales principales de servicios de IA o Cloud (ej. tu API Key de Google AI Studio o tu token de Hugging Face). Guárdalas en el espacio <code>Claves Globales</code> para poder inyectarlas automáticamente en cualquier proyecto.
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <span className="font-bold text-slate-100 flex items-center gap-1.5 text-emerald-400">
-                    <Layers className="w-4 h-4" /> 2. Claves Específicas por Proyecto
-                  </span>
-                  <p className="text-slate-400">
-                    Bases de datos exclusivas (ej. base de datos Supabase del "Generador de Libros"), webhooks de WhatsApp, credenciales de Stripe o tokens de despliegue específicos de ese proyecto.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h5 className="font-bold text-slate-200 text-xs uppercase tracking-wider">
-                  Clasificación de Entornos (Environments):
-                </h5>
-                <ul className="space-y-1.5 text-slate-400 list-disc list-inside">
-                  <li><strong className="text-blue-300 font-mono">Desarrollo (Dev):</strong> Conexiones a bases de datos locales (localhost), keys de prueba y endpoints de sandbox.</li>
-                  <li><strong className="text-amber-300 font-mono">Staging / Test:</strong> Entorno de pruebas previo a producción para verificar que todo funcione.</li>
-                  <li><strong className="text-emerald-300 font-mono">Producción (Prod):</strong> Claves y bases de datos finales con límites de gasto y credenciales blindadas.</li>
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: FREE AI SERVICES */}
-          {activeTab === 'freeAi' && (
-            <div className="space-y-4">
-              <h4 className="font-bold text-sm text-slate-100 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                Guía de Proveedores con Tiers Gratuitos Generosos
+        {/* TAB 1: CATALOG OF 30+ FREE AI APIS */}
+        {activeTab === 'catalog' && (
+          <div className="space-y-5 animate-fadeIn">
+            
+            <div className="p-4 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-transparent rounded-2xl border border-emerald-500/20 text-xs space-y-1">
+              <h4 className="font-bold text-slate-100 flex items-center gap-2 text-sm">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span>30+ APIs de Inteligencia Artificial y Cloud 100% en la Nube</span>
               </h4>
-
-              <div className="space-y-3">
-                {/* Google Gemini */}
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-cyan-300 text-sm">1. Google AI Studio (Gemini)</span>
-                    <a
-                      href="https://aistudio.google.com/app/apikey"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-semibold"
-                    >
-                      <span>Obtener Key Gratis</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                  <p className="text-slate-400">
-                    <strong>Límites gratuitos:</strong> Gemini 1.5 Flash ofrece hasta 15 peticiones por minuto (RPM) y 1 millón de tokens por minuto (TPM) completamente gratis para desarrollo.
-                  </p>
-                  <div className="font-mono text-[11px] bg-vault-950 p-2 rounded border border-slate-800 text-slate-300">
-                    Variable sugerida: <span className="text-cyan-400">GEMINI_API_KEY</span>
-                  </div>
-                </div>
-
-                {/* Groq Cloud */}
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-amber-300 text-sm">2. Groq Cloud (Inferencia LPU)</span>
-                    <a
-                      href="https://console.groq.com/keys"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-semibold"
-                    >
-                      <span>Obtener Key Gratis</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                  <p className="text-slate-400">
-                    <strong>Velocidad:</strong> 500+ tokens/segundo en modelos como Llama 3.3 70B y Mixtral 8x7B. Es el motor más rápido para agentes autónomos y chatbots.
-                  </p>
-                  <div className="font-mono text-[11px] bg-vault-950 p-2 rounded border border-slate-800 text-slate-300">
-                    Variable sugerida: <span className="text-amber-400">GROQ_API_KEY</span>
-                  </div>
-                </div>
-
-                {/* Hugging Face */}
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-yellow-300 text-sm">3. Hugging Face (Inference API)</span>
-                    <a
-                      href="https://huggingface.co/settings/tokens"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-semibold"
-                    >
-                      <span>Crear User Token</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                  <p className="text-slate-400">
-                    <strong>Uso:</strong> Crea un token con permisos de <em>Read</em> para acceder a miles de modelos de clasificación de texto, visión, embeddings y audio de forma serverless.
-                  </p>
-                  <div className="font-mono text-[11px] bg-vault-950 p-2 rounded border border-slate-800 text-slate-300">
-                    Variable sugerida: <span className="text-yellow-400">HF_TOKEN</span>
-                  </div>
-                </div>
-
-                {/* OpenRouter */}
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-purple-300 text-sm">4. OpenRouter (Modelos :free)</span>
-                    <a
-                      href="https://openrouter.ai/keys"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-400 hover:underline font-semibold"
-                    >
-                      <span>Obtener Key</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                  <p className="text-slate-400">
-                    <strong>Ventaja:</strong> Con una sola clave puedes invocar modelos que terminan en <code>:free</code> (como Llama 3 70B, Mistral, etc.) sin pagar nada.
-                  </p>
-                  <div className="font-mono text-[11px] bg-vault-950 p-2 rounded border border-slate-800 text-slate-300">
-                    Variable sugerida: <span className="text-purple-400">OPENROUTER_API_KEY</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: ENV WORKFLOW */}
-          {activeTab === 'envWorkflow' && (
-            <div className="space-y-4">
-              <h4 className="font-bold text-sm text-slate-100 flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-cyan-400" />
-                Cómo Usar Archivos .env en Proyectos Reales
-              </h4>
-
-              <p className="text-slate-300">
-                Un archivo <code>.env</code> contiene pares clave-valor que tu aplicación carga en tiempo de ejecución para no exponer contraseñas en el código fuente.
+              <p className="text-slate-300 leading-relaxed">
+                Todas estas plataformas ofrecen <strong>acceso directo por API sin tener que descargar software local ni modelos en tu PC</strong>. Puedes crear cuentas gratuitas y guardar tus claves aquí en DevVault para usarlas en cualquier momento.
               </p>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <span className="font-bold text-cyan-300 text-xs">🐍 En Python:</span>
-                  <div className="bg-vault-950 p-2.5 rounded font-mono text-[11px] text-slate-300">
-                    <code>pip install python-dotenv</code><br />
-                    <span className="text-slate-500"># main.py</span><br />
-                    from dotenv import load_dotenv<br />
-                    import os<br />
-                    load_dotenv()<br />
-                    api_key = os.getenv("GEMINI_API_KEY")
-                  </div>
-                </div>
-
-                <div className="p-3.5 bg-vault-900 rounded-xl border border-slate-800 space-y-2">
-                  <span className="font-bold text-emerald-300 text-xs">⚡ En Node.js:</span>
-                  <div className="bg-vault-950 p-2.5 rounded font-mono text-[11px] text-slate-300">
-                    <code>npm install dotenv</code><br />
-                    <span className="text-slate-500">// index.js</span><br />
-                    import 'dotenv/config';<br />
-                    const apiKey = process.env.GEMINI_API_KEY;
-                  </div>
-                </div>
+            {/* Filter and search bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-1.5 w-full sm:w-auto">
+                <button
+                  onClick={() => setCatalogCategoryFilter('all')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    catalogCategoryFilter === 'all' ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  Todos ({PROVIDER_TEMPLATES.length})
+                </button>
+                <button
+                  onClick={() => setCatalogCategoryFilter('ai')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    catalogCategoryFilter === 'ai' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  LLMs & Razonamiento
+                </button>
+                <button
+                  onClick={() => setCatalogCategoryFilter('ai-voice')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    catalogCategoryFilter === 'ai-voice' ? 'bg-emerald-500/20 text-emerald-300' : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  Voz & Audio
+                </button>
+                <button
+                  onClick={() => setCatalogCategoryFilter('ai-search')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    catalogCategoryFilter === 'ai-search' ? 'bg-amber-500/20 text-amber-300' : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  Búsqueda & RAG
+                </button>
+                <button
+                  onClick={() => setCatalogCategoryFilter('vector-db')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    catalogCategoryFilter === 'vector-db' ? 'bg-purple-500/20 text-purple-300' : 'text-slate-400 hover:bg-slate-900'
+                  }`}
+                >
+                  Vector DBs
+                </button>
               </div>
 
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 space-y-1">
-                <span className="font-bold flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  Regla de Oro en Frontend (Vite / React / Next.js):
-                </span>
-                <p className="text-[11px] text-amber-300/90">
-                  Las variables con prefijo <code>VITE_</code> o <code>NEXT_PUBLIC_</code> se empaquetan y son <strong>visibles en el código del navegador del usuario</strong>. ¡Nunca coloques claves de administración o bases de datos con ese prefijo! Úsalas solo en el backend o en Server Actions.
-                </p>
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+                <input
+                  type="text"
+                  value={catalogSearch}
+                  onChange={(e) => setCatalogSearch(e.target.value)}
+                  placeholder="Buscar por nombre o variable..."
+                  className="w-full pl-8 pr-3 py-1 bg-vault-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                />
               </div>
             </div>
-          )}
 
-          {/* TAB 4: DEVOPS & GIT */}
-          {activeTab === 'devops' && (
-            <div className="space-y-4">
-              <h4 className="font-bold text-sm text-slate-100 flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-indigo-400" />
-                Buenas Prácticas para Git y Despliegue
-              </h4>
+            {/* Providers Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
+              {filteredCatalog.map(p => (
+                <div
+                  key={p.id}
+                  className="p-4 bg-vault-900/80 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-all space-y-2 text-xs flex flex-col justify-between"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-100 text-sm">{p.name}</span>
+                      <span className="font-mono text-[10px] text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+                        {p.defaultVarName}
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-xs leading-relaxed">{p.description}</p>
+                    <div className="text-[11px] text-emerald-400 font-medium">
+                      🎁 {p.quotaInfo}
+                    </div>
+                  </div>
 
-              <div className="space-y-3">
-                <div className="p-3 bg-vault-900 rounded-xl border border-slate-800 space-y-1.5">
-                  <span className="font-bold text-slate-100">1. Añadir siempre al .gitignore:</span>
-                  <p className="text-slate-400">
-                    Antes de hacer tu primer commit, crea un archivo <code>.gitignore</code> en la raíz de tu proyecto e incluye:
-                  </p>
-                  <pre className="bg-vault-950 p-2 rounded text-emerald-300 font-mono text-[11px]">
-                    .env{'\n'}.env.local{'\n'}.env.production{'\n'}node_modules/
-                  </pre>
+                  <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
+                    <button
+                      onClick={() => handleCopy(p.id, p.defaultVarName)}
+                      className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 cursor-pointer"
+                    >
+                      {copiedId === p.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedId === p.id ? 'Copiado' : 'Copiar Variable'}</span>
+                    </button>
+
+                    {p.consoleUrl && (
+                      <a
+                        href={p.consoleUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold underline underline-offset-2"
+                      >
+                        <span>Consola Oficial</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
-
-                <div className="p-3 bg-vault-900 rounded-xl border border-slate-800 space-y-1.5">
-                  <span className="font-bold text-slate-100">2. Crear siempre un .env.example:</span>
-                  <p className="text-slate-400">
-                    DevVault incluye un botón en el <strong>Studio .env</strong> para descargar tu archivo <code>.env.example</code> con las variables necesarias pero con valores de ejemplo (ej. <code>GEMINI_API_KEY=tu_clave_aqui</code>) para que otros colaboradores sepan qué variables configurar.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-vault-900 rounded-xl border border-slate-800 space-y-1.5">
-                  <span className="font-bold text-slate-100">3. GitHub Actions & Despliegues en Vercel:</span>
-                  <p className="text-slate-400">
-                    En GitHub ve a <code>Settings &gt; Secrets and variables &gt; Actions</code> y añade cada secreto. En Vercel ve a <code>Project Settings &gt; Environment Variables</code>.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
-          )}
 
-          {/* TAB 5: SECURITY & BACKUPS */}
-          {activeTab === 'security' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-200">
-                <h4 className="font-bold text-sm text-cyan-300 flex items-center gap-2 mb-1">
-                  <ShieldCheck className="w-4 h-4" />
-                  Arquitectura Criptográfica de DevVault
-                </h4>
+          </div>
+        )}
+
+        {/* TAB 2: STRUCTURE */}
+        {activeTab === 'structure' && (
+          <div className="space-y-4 text-xs text-slate-300 leading-relaxed animate-fadeIn">
+            <h4 className="font-bold text-base text-slate-100">Cómo organizar tus claves estratégicamente</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 bg-vault-900 rounded-2xl border border-slate-800 space-y-2">
+                <span className="font-bold text-cyan-400 block text-sm">1. Espacio Global (Compartido)</span>
                 <p>
-                  DevVault implementa el estándar <strong>Zero-Knowledge Local</strong>. Tu Contraseña Maestra nunca sale de tu equipo ni se envía por la red.
+                  Guarda aquí tus <strong>API Keys personales de IA</strong> (Google AI Studio, Groq, Hugging Face, OpenRouter) que reutilizas en múltiples proyectos. Así solo las registras una vez.
                 </p>
               </div>
-
-              <div className="space-y-2">
-                <h5 className="font-bold text-slate-200 uppercase tracking-wider text-xs">Recomendaciones de Seguridad:</h5>
-                <ul className="space-y-2 text-slate-400 list-disc list-inside">
-                  <li>
-                    <strong className="text-slate-200">Exporta Respaldos Regulares:</strong> Haz clic en el icono de disco duro arriba a la derecha y descarga un archivo <code>.devvault</code> cifrado con contraseña para guardarlo en tu Google Drive o pendrive.
-                  </li>
-                  <li>
-                    <strong className="text-slate-200">Usa el Auditor de Seguridad:</strong> Revisa periódicamente el <strong>Auditor de Vulnerabilidades</strong> para detectar claves duplicadas o sin rotar.
-                  </li>
-                  <li>
-                    <strong className="text-slate-200">Sanitiza antes de Compartir:</strong> Usa el <strong>Sanitizador de Código</strong> si necesitas mostrar un fragmento en foros, Discord o GitHub para asegurarte de que ninguna API key se filtre.
-                  </li>
-                </ul>
+              <div className="p-4 bg-vault-900 rounded-2xl border border-slate-800 space-y-2">
+                <span className="font-bold text-emerald-400 block text-sm">2. Por Proyecto Específico</span>
+                <p>
+                  Crea una carpeta por cada aplicación (ej. <em>"SaaS Cuentos"</em>, <em>"Bot Telegram"</em>) y guarda allí las bases de datos (Supabase/Neon), secretos JWT y webhooks exclusivos de esa app.
+                </p>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-        </div>
+        {/* TAB 3: .ENV USAGE */}
+        {activeTab === 'env-usage' && (
+          <div className="space-y-4 text-xs text-slate-300 leading-relaxed animate-fadeIn">
+            <h4 className="font-bold text-base text-slate-100">Cómo cargar variables en tus proyectos</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 bg-vault-900 rounded-2xl border border-slate-800 space-y-2 font-mono text-[11px]">
+                <span className="font-bold text-cyan-400 font-sans block text-sm">🐍 En Python (FastAPI / Scripts)</span>
+                <pre className="text-slate-300 bg-vault-950 p-2.5 rounded-xl border border-slate-800">
+{`from dotenv import load_dotenv
+import os
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")`}
+                </pre>
+              </div>
+              <div className="p-4 bg-vault-900 rounded-2xl border border-slate-800 space-y-2 font-mono text-[11px]">
+                <span className="font-bold text-emerald-400 font-sans block text-sm">⚡ En Node.js / Express</span>
+                <pre className="text-slate-300 bg-vault-950 p-2.5 rounded-xl border border-slate-800">
+{`import 'dotenv/config';
+
+const apiKey = process.env.GROQ_API_KEY;`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: DEVOPS */}
+        {activeTab === 'devops' && (
+          <div className="space-y-4 text-xs text-slate-300 leading-relaxed animate-fadeIn">
+            <h4 className="font-bold text-base text-slate-100">Reglas de Oro de Seguridad en Git y DevOps</h4>
+            <div className="p-4 bg-rose-500/10 rounded-2xl border border-rose-500/30 text-rose-200 space-y-2">
+              <span className="font-bold text-sm">⚠️ NUNCA subas tus archivos `.env` a GitHub</span>
+              <p>
+                Asegúrate de que tu archivo <code>.gitignore</code> contenga la línea <code>.env</code>. Para tus compañeros de equipo, usa el botón <strong>"Descargar .env.example"</strong> en el Studio .env de DevVault.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: SECURITY */}
+        {activeTab === 'security' && (
+          <div className="space-y-4 text-xs text-slate-300 leading-relaxed animate-fadeIn">
+            <h4 className="font-bold text-base text-slate-100">Criptografía Militar Zero-Knowledge</h4>
+            <p>
+              Tus secretos se cifran localmente con el algoritmo autenticado <strong>AES-GCM (256 bits)</strong> y la derivación <strong>PBKDF2-SHA256 con 100,000 iteraciones</strong>. Tu contraseña maestra nunca se envía a ningún servidor y solo existe en la memoria volátil de tu navegador.
+            </p>
+          </div>
+        )}
 
       </div>
     </Modal>

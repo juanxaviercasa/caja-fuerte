@@ -12,6 +12,7 @@ import { UnlockVault } from './components/auth/UnlockVault';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { SecretList } from './components/secrets/SecretList';
+import { ApiEncyclopediaView } from './components/dictionary/ApiEncyclopediaView';
 
 import { SecretModal } from './components/secrets/SecretModal';
 import { SecretQuickView } from './components/secrets/SecretQuickView';
@@ -31,15 +32,27 @@ import { CodeSanitizerModal } from './components/tools/CodeSanitizerModal';
 import { TokenCalculatorModal } from './components/tools/TokenCalculatorModal';
 import { TrashBinModal } from './components/secrets/TrashBinModal';
 import { InteractiveGuideModal } from './components/guide/InteractiveGuideModal';
+import { ApiDictionaryModal } from './components/dictionary/ApiDictionaryModal';
+
+// AI Assistant & Router Modals
+import { AiSettingsModal } from './components/ai/AiSettingsModal';
+import { AiOrganizerModal } from './components/ai/AiOrganizerModal';
+import { AiCopilotModal } from './components/ai/AiCopilotModal';
 
 import { ConfirmModal } from './components/common/ConfirmModal';
 import { ToastContainer } from './components/common/Toast';
 
 export default function App() {
   // Vault state
-  const [authState, setAuthState] = useState('CHECKING'); // 'CHECKING' | 'SETUP' | 'LOCKED' | 'UNLOCKED'
+  const [authState, setAuthState] = useState('CHECKING');
   const [masterPassword, setMasterPassword] = useState('');
   const [vaultData, setVaultData] = useState(null);
+
+  // Main UI Screen Mode: 'vault' | 'encyclopedia'
+  const [mainViewMode, setMainViewMode] = useState('encyclopedia'); // Open directly into the Encyclopedia of 120+ APIs by default so the user sees the comprehensive catalog immediately!
+
+  // Mobile navigation drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Navigation & Filtering
   const [activeProjectId, setActiveProjectId] = useState('all');
@@ -74,6 +87,12 @@ export default function App() {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isTrashBinOpen, setIsTrashBinOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
+
+  // AI Assistant & Organizer Modals
+  const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
+  const [isAiOrganizerOpen, setIsAiOrganizerOpen] = useState(false);
+  const [isAiCopilotOpen, setIsAiCopilotOpen] = useState(false);
 
   // Confirmation Modal
   const [confirmConfig, setConfirmConfig] = useState({
@@ -101,7 +120,6 @@ export default function App() {
     setLastActivityTime(Date.now());
   }, []);
 
-  // Initial check
   useEffect(() => {
     if (isVaultInitialized()) {
       setAuthState('LOCKED');
@@ -110,7 +128,6 @@ export default function App() {
     }
   }, []);
 
-  // Activity listeners when unlocked
   useEffect(() => {
     if (authState !== 'UNLOCKED') return;
 
@@ -128,7 +145,6 @@ export default function App() {
     };
   }, [authState, resetActivity]);
 
-  // Check auto lock expiration
   useEffect(() => {
     if (authState !== 'UNLOCKED') return;
     const mins = vaultData?.settings?.autoLockMinutes || 15;
@@ -145,7 +161,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, [authState, lastActivityTime, vaultData?.settings?.autoLockMinutes]);
 
-  // Save changes
   const saveChanges = async (newData) => {
     setVaultData(newData);
     if (masterPassword && authState === 'UNLOCKED') {
@@ -158,7 +173,7 @@ export default function App() {
     }
   };
 
-  // Vault lifecycle
+  // Lifecycle
   const handleSetupComplete = async (newMasterPassword, options) => {
     const initialized = await initVault(newMasterPassword, options);
     setMasterPassword(newMasterPassword);
@@ -182,7 +197,7 @@ export default function App() {
     setAuthState('LOCKED');
   };
 
-  // Secret Actions
+  // Secret Operations
   const handleSaveSecret = (secretPayload) => {
     const existingIndex = (vaultData?.secrets || []).findIndex(s => s.id === secretPayload.id);
     let updatedSecrets = [];
@@ -202,7 +217,6 @@ export default function App() {
     });
   };
 
-  // Soft Delete to Trash Bin
   const handleDeleteSecret = (secret) => {
     const deletedItem = {
       ...secret,
@@ -221,7 +235,6 @@ export default function App() {
     addToast(`Secreto movido a la papelera de reciclaje.`, 'info');
   };
 
-  // Restore from Trash
   const handleRestoreSecret = (secretId) => {
     const itemToRestore = (vaultData?.trash || []).find(s => s.id === secretId);
     if (!itemToRestore) return;
@@ -241,7 +254,6 @@ export default function App() {
     addToast(`Secreto restaurado a la lista principal.`, 'success');
   };
 
-  // Permanent Delete
   const handlePermanentDeleteSecret = (secretId) => {
     const remainingTrash = (vaultData?.trash || []).filter(s => s.id !== secretId);
     saveChanges({
@@ -268,7 +280,6 @@ export default function App() {
     });
   };
 
-  // Toggle Favorite
   const handleToggleFavorite = (secretId) => {
     const updatedSecrets = (vaultData?.secrets || []).map(s => {
       if (s.id === secretId) {
@@ -283,7 +294,6 @@ export default function App() {
     });
   };
 
-  // Project Actions
   const handleSaveProject = (projectData) => {
     const existingIndex = (vaultData?.projects || []).findIndex(p => p.id === projectData.id);
     let updatedProjects = [];
@@ -336,7 +346,6 @@ export default function App() {
     });
   };
 
-  // Import batch secrets from .env
   const handleImportSecrets = (newSecrets) => {
     const merged = [...newSecrets, ...(vaultData?.secrets || [])];
     saveChanges({
@@ -346,13 +355,27 @@ export default function App() {
     addToast(`¡Se importaron y cifraron ${newSecrets.length} secretos con éxito!`, 'success');
   };
 
-  // Restore backup
+  const handleApplyReorganization = (updatedVault) => {
+    saveChanges(updatedVault);
+    addToast('¡Bóveda reorganizada y normalizada con éxito por la IA!', 'success');
+  };
+
+  const handleSaveAiSlots = (newProviderSlots) => {
+    saveChanges({
+      ...vaultData,
+      settings: {
+        ...(vaultData?.settings || {}),
+        aiProviderSlots: newProviderSlots
+      }
+    });
+    addToast('Piscina de slots de IA guardada y actualizada.', 'success');
+  };
+
   const handleRestoreVaultData = (restoredVault) => {
     saveChanges(restoredVault);
     addToast('¡Caja fuerte restaurada correctamente desde el respaldo!', 'success');
   };
 
-  // Reset Vault
   const handleRequestResetVault = () => {
     setConfirmConfig({
       isOpen: true,
@@ -371,10 +394,27 @@ export default function App() {
     });
   };
 
-  // Quick Open Handlers
   const handleOpenNewSecretWithPreset = (providerId) => {
     setPresetProviderId(providerId);
     setEditingSecret(null);
+    setIsSecretModalOpen(true);
+  };
+
+  const handleConnectApiFromDictionary = (apiItem) => {
+    setEditingSecret({
+      id: `sec_${Date.now()}`,
+      title: apiItem.name,
+      varName: apiItem.defaultVarName,
+      value: '',
+      type: 'api_key',
+      category: apiItem.category?.startsWith('ai') ? 'ai' : (apiItem.category?.includes('database') ? 'database' : (apiItem.category?.includes('auth') ? 'auth' : 'cloud')),
+      environment: 'development',
+      projectId: activeProjectId === 'all' ? 'global-keys' : activeProjectId,
+      description: apiItem.description,
+      notes: `💡 Caso de uso: ${apiItem.useCase}\n🎁 Free Tier: ${apiItem.freeTier}`,
+      isFavorite: false
+    });
+    setPresetProviderId(null);
     setIsSecretModalOpen(true);
   };
 
@@ -398,6 +438,8 @@ export default function App() {
   const currentProjectObj = activeProjectId === 'all' 
     ? { id: 'all', name: 'Todos los Proyectos', description: 'Visor universal de claves y credenciales.' }
     : vaultData?.projects?.find(p => p.id === activeProjectId) || { name: 'Proyecto' };
+
+  const currentAiProviderSlots = vaultData?.settings?.aiProviderSlots || {};
 
   if (authState === 'CHECKING') {
     return (
@@ -462,32 +504,28 @@ export default function App() {
         activeProject={currentProjectObj}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        mainViewMode={mainViewMode}
+        setMainViewMode={setMainViewMode}
         onOpenNewSecret={() => {
           setEditingSecret(null);
           setPresetProviderId('google-ai-studio');
           setIsSecretModalOpen(true);
         }}
-        onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
-        onOpenApiTester={() => {
-          setTesterInitialData({ provider: 'gemini', key: '' });
-          setIsApiTesterOpen(true);
-        }}
-        onOpenPasswordGenerator={() => setIsPasswordGeneratorOpen(true)}
         onOpenBackup={() => setIsBackupModalOpen(true)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
         onOpenAiPlayground={() => setIsAiPlaygroundOpen(true)}
-        onOpenSecurityAudit={() => setIsSecurityAuditOpen(true)}
-        onOpenEnvDiff={() => setIsEnvDiffOpen(true)}
-        onOpenSanitizer={() => setIsSanitizerOpen(true)}
-        onOpenCalculator={() => setIsCalculatorOpen(true)}
         onOpenGuide={() => setIsGuideOpen(true)}
+        onOpenAutoOrganizer={() => setIsAiOrganizerOpen(true)}
+        onOpenCopilotChat={() => setIsAiCopilotOpen(true)}
         onLockVault={handleLockVault}
         autoLockMinutes={vaultData?.settings?.autoLockMinutes || 15}
         lastActivityTime={lastActivityTime}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
       {/* 2. Sidebar + Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         <Sidebar
           projects={vaultData?.projects || []}
           activeProjectId={activeProjectId}
@@ -498,6 +536,8 @@ export default function App() {
           setActiveCategory={setActiveCategory}
           secrets={vaultData?.secrets || []}
           trashSecrets={vaultData?.trash || []}
+          mainViewMode={mainViewMode}
+          setMainViewMode={setMainViewMode}
           onOpenProjectManager={() => setIsProjectManagerOpen(true)}
           onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
           onOpenApiTester={() => setIsApiTesterOpen(true)}
@@ -513,43 +553,53 @@ export default function App() {
           onOpenCalculator={() => setIsCalculatorOpen(true)}
           onOpenTrashBin={() => setIsTrashBinOpen(true)}
           onOpenGuide={() => setIsGuideOpen(true)}
+          onOpenDictionary={() => setMainViewMode('encyclopedia')}
+          onOpenAutoOrganizer={() => setIsAiOrganizerOpen(true)}
+          onOpenCopilotChat={() => setIsAiCopilotOpen(true)}
+          onOpenAiSettings={() => setIsAiSettingsOpen(true)}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-b from-vault-950 to-vault-900">
-          <SecretList
-            secrets={vaultData?.secrets || []}
-            projects={vaultData?.projects || []}
-            activeProject={currentProjectObj}
-            activeEnvironment={activeEnvironment}
-            activeCategory={activeCategory}
-            searchQuery={searchQuery}
-            onOpenNewSecret={() => {
-              setEditingSecret(null);
-              setPresetProviderId(null);
-              setIsSecretModalOpen(true);
-            }}
-            onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
-            onEditSecret={(sec) => {
-              setEditingSecret(sec);
-              setIsSecretModalOpen(true);
-            }}
-            onDeleteSecret={handleDeleteSecret}
-            onQuickViewSecret={(sec) => {
-              setInspectingSecret(sec);
-              setIsQuickViewOpen(true);
-            }}
-            onTestApiSecret={handleTestApiSecret}
-            onCopySecret={handleCopySecretToast}
-            onSelectProviderPreset={handleOpenNewSecretWithPreset}
-            onToggleFavorite={handleToggleFavorite}
-            onOpenSdk={handleOpenSdkForSecret}
-          />
+        <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-b from-vault-950 to-vault-900 w-full">
+          {mainViewMode === 'encyclopedia' ? (
+            <ApiEncyclopediaView
+              onConnectApiToVault={handleConnectApiFromDictionary}
+            />
+          ) : (
+            <SecretList
+              secrets={vaultData?.secrets || []}
+              projects={vaultData?.projects || []}
+              activeProject={currentProjectObj}
+              activeEnvironment={activeEnvironment}
+              activeCategory={activeCategory}
+              searchQuery={searchQuery}
+              onOpenNewSecret={() => {
+                setEditingSecret(null);
+                setPresetProviderId(null);
+                setIsSecretModalOpen(true);
+              }}
+              onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
+              onEditSecret={(sec) => {
+                setEditingSecret(sec);
+                setIsSecretModalOpen(true);
+              }}
+              onDeleteSecret={handleDeleteSecret}
+              onQuickViewSecret={(sec) => {
+                setInspectingSecret(sec);
+                setIsQuickViewOpen(true);
+              }}
+              onTestApiSecret={handleTestApiSecret}
+              onCopySecret={handleCopySecretToast}
+              onSelectProviderPreset={handleOpenNewSecretWithPreset}
+              onToggleFavorite={handleToggleFavorite}
+              onOpenSdk={handleOpenSdkForSecret}
+            />
+          )}
         </main>
       </div>
 
       {/* 3. Core Modals */}
-      
-      {/* Secret Create / Edit Modal */}
       <SecretModal
         isOpen={isSecretModalOpen}
         onClose={() => {
@@ -564,7 +614,6 @@ export default function App() {
         activeProjectId={activeProjectId}
       />
 
-      {/* Quick View / Code Inspector Modal */}
       <SecretQuickView
         isOpen={isQuickViewOpen}
         onClose={() => {
@@ -575,7 +624,6 @@ export default function App() {
         projectName={vaultData?.projects?.find(p => p.id === inspectingSecret?.projectId)?.name}
       />
 
-      {/* Project Manager Modal */}
       <ProjectManagerModal
         isOpen={isProjectManagerOpen}
         onClose={() => setIsProjectManagerOpen(false)}
@@ -585,7 +633,6 @@ export default function App() {
         onDeleteProject={handleDeleteProject}
       />
 
-      {/* Env Studio Modal */}
       <EnvStudioModal
         isOpen={isEnvStudioOpen}
         onClose={() => setIsEnvStudioOpen(false)}
@@ -595,7 +642,6 @@ export default function App() {
         onImportSecrets={handleImportSecrets}
       />
 
-      {/* API Tester Modal */}
       <ApiTesterModal
         isOpen={isApiTesterOpen}
         onClose={() => setIsApiTesterOpen(false)}
@@ -604,13 +650,11 @@ export default function App() {
         secrets={vaultData?.secrets || []}
       />
 
-      {/* Password Generator Modal */}
       <PasswordGeneratorModal
         isOpen={isPasswordGeneratorOpen}
         onClose={() => setIsPasswordGeneratorOpen(false)}
       />
 
-      {/* Backup Modal */}
       <BackupModal
         isOpen={isBackupModalOpen}
         onClose={() => setIsBackupModalOpen(false)}
@@ -619,7 +663,6 @@ export default function App() {
         onRestoreVaultData={handleRestoreVaultData}
       />
 
-      {/* Settings Modal */}
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
@@ -639,16 +682,19 @@ export default function App() {
         onRequestResetVault={handleRequestResetVault}
       />
 
-      {/* 4. Pro Suite Modals */}
-      
-      {/* AI Playground */}
+      {/* 4. Pro Tools Modals */}
+      <ApiDictionaryModal
+        isOpen={isDictionaryOpen}
+        onClose={() => setIsDictionaryOpen(false)}
+        onConnectApiToVault={handleConnectApiFromDictionary}
+      />
+
       <AiPlaygroundModal
         isOpen={isAiPlaygroundOpen}
         onClose={() => setIsAiPlaygroundOpen(false)}
         secrets={vaultData?.secrets || []}
       />
 
-      {/* Security Audit */}
       <SecurityAuditModal
         isOpen={isSecurityAuditOpen}
         onClose={() => setIsSecurityAuditOpen(false)}
@@ -659,7 +705,6 @@ export default function App() {
         }}
       />
 
-      {/* Env Diff */}
       <EnvDiffModal
         isOpen={isEnvDiffOpen}
         onClose={() => setIsEnvDiffOpen(false)}
@@ -667,7 +712,6 @@ export default function App() {
         secrets={vaultData?.secrets || []}
       />
 
-      {/* SDK Studio */}
       <SdkGeneratorModal
         isOpen={isSdkModalOpen}
         onClose={() => {
@@ -678,19 +722,16 @@ export default function App() {
         initialSecret={sdkSelectedSecret}
       />
 
-      {/* Code Sanitizer */}
       <CodeSanitizerModal
         isOpen={isSanitizerOpen}
         onClose={() => setIsSanitizerOpen(false)}
       />
 
-      {/* Token & Cost Calculator */}
       <TokenCalculatorModal
         isOpen={isCalculatorOpen}
         onClose={() => setIsCalculatorOpen(false)}
       />
 
-      {/* Trash Bin Modal */}
       <TrashBinModal
         isOpen={isTrashBinOpen}
         onClose={() => setIsTrashBinOpen(false)}
@@ -700,10 +741,41 @@ export default function App() {
         onEmptyTrash={handleEmptyTrash}
       />
 
-      {/* Interactive Guide Center */}
       <InteractiveGuideModal
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
+      />
+
+      {/* 5. AI Assistant & Organizer Modals */}
+      <AiSettingsModal
+        isOpen={isAiSettingsOpen}
+        onClose={() => setIsAiSettingsOpen(false)}
+        configuredProviderSlots={currentAiProviderSlots}
+        onSaveSlots={handleSaveAiSlots}
+        vaultSecrets={vaultData?.secrets || []}
+      />
+
+      <AiOrganizerModal
+        isOpen={isAiOrganizerOpen}
+        onClose={() => setIsAiOrganizerOpen(false)}
+        vaultData={vaultData}
+        configuredProviderSlots={currentAiProviderSlots}
+        onApplyReorganization={handleApplyReorganization}
+        onOpenAiSettings={() => {
+          setIsAiOrganizerOpen(false);
+          setIsAiSettingsOpen(true);
+        }}
+      />
+
+      <AiCopilotModal
+        isOpen={isAiCopilotOpen}
+        onClose={() => setIsAiCopilotOpen(false)}
+        vaultData={vaultData}
+        configuredProviderSlots={currentAiProviderSlots}
+        onOpenAutoOrganizer={() => {
+          setIsAiCopilotOpen(false);
+          setIsAiOrganizerOpen(true);
+        }}
       />
 
       {/* Confirmation Modal */}
