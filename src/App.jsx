@@ -740,7 +740,7 @@ function VaultCore() {
               </motion.div>
             )}
             {mainViewMode === 'workflows' && (
-              <WorkflowsView key="workflows" />
+              <WorkflowsView key="workflows" vaultData={vaultData} />
             )}
           </AnimatePresence>
         </main>

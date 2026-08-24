@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { BUSINESS_TEMPLATES } from '../../data/workflowTemplates';
 
-export function WorkflowsView() {
+export function WorkflowsView({ vaultData }) {
   const [nodes, setNodes] = useState([]);
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,7 @@ export function WorkflowsView() {
     localStorage.setItem('devvault_copilot_chats', JSON.stringify(chatHistories));
   }, [chatHistories]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!chatInput.trim() || !activeTemplate) return;
 
@@ -56,21 +56,88 @@ export function WorkflowsView() {
         ...prev,
         [activeTemplate.id]: [...currentHistory, newUserMsg]
     }));
+    
+    const userQuestion = chatInput;
     setChatInput('');
     setIsAiTyping(true);
 
-    // Mock AI Response with logic context
-    setTimeout(() => {
-        const modelNames = { gemini: 'Gemini 1.5 Flash (Google AI Studio)', groq: 'Llama 3 70B (Groq)', claude: 'Claude 3.5 Sonnet (Anthropic/OpenRouter)' };
-        const responseText = `[Simulación vía ${modelNames[copilotModel]}]\n\n¡Entendido! Al analizar tu arquitectura para **"${activeTemplate.name}"** con sus ${activeTemplate.nodes?.length || 0} APIs, te guiaré paso a paso. (Nota: En Fase 2, aquí recibirás soporte real orquestado por el modelo seleccionado con el contexto de este flujo).`;
-        
-        const aiResponse = { id: Date.now() + 1, role: 'assistant', text: responseText };
-        setChatHistories(prev => ({
-            ...prev,
-            [activeTemplate.id]: [...(prev[activeTemplate.id] || []), aiResponse]
-        }));
-        setIsAiTyping(false);
-    }, 1500);
+    try {
+      // 1. Buscar la llave en la bóveda
+      const secrets = vaultData?.secrets || [];
+      let apiKey = "";
+      
+      if (copilotModel === 'groq') {
+        const groqSecret = secrets.find(s => s.providerId === 'groq' || s.varName.includes('GROQ'));
+        apiKey = groqSecret ? groqSecret.value : null;
+      } else if (copilotModel === 'gemini') {
+        const geminiSecret = secrets.find(s => s.providerId === 'google-ai-studio' || s.varName.includes('GEMINI'));
+        apiKey = geminiSecret ? geminiSecret.value : null;
+      } else {
+        // Claude u otros
+        throw new Error(`El modelo ${copilotModel} aún no está implementado o falta su API Key.`);
+      }
+
+      if (!apiKey) {
+        throw new Error(`No tienes guardada una API Key para ${copilotModel} en tu bóveda.`);
+      }
+
+      const systemPrompt = `Eres el DevVault Copilot. Estás ayudando al usuario a configurar la arquitectura "${activeTemplate.name}". Responde de forma concisa y técnica. Aquí tienes los nodos que componen esta arquitectura: ${activeTemplate.nodes.map(n => n.name).join(', ')}.`;
+      
+      let aiResponseText = "";
+
+      // 2. Llamada a la API real
+      if (copilotModel === 'groq') {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama3-70b-8192',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...currentHistory.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text })),
+              { role: 'user', content: userQuestion }
+            ]
+          })
+        });
+        if (!res.ok) throw new Error("Error en Groq API");
+        const data = await res.json();
+        aiResponseText = data.choices[0].message.content;
+      } 
+      else if (copilotModel === 'gemini') {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: { text: systemPrompt } },
+            contents: [
+              ...currentHistory.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] })),
+              { role: 'user', parts: [{ text: userQuestion }] }
+            ]
+          })
+        });
+        if (!res.ok) throw new Error("Error en Gemini API");
+        const data = await res.json();
+        aiResponseText = data.candidates[0].content.parts[0].text;
+      }
+
+      // 3. Mostrar respuesta
+      const aiResponse = { id: Date.now() + 1, role: 'assistant', text: aiResponseText };
+      setChatHistories(prev => ({
+          ...prev,
+          [activeTemplate.id]: [...(prev[activeTemplate.id] || []), aiResponse]
+      }));
+
+    } catch (error) {
+      const errorResponse = { id: Date.now() + 1, role: 'assistant', text: `⚠️ **Error del Copilot:** ${error.message} 
+
+Recuerda ir a tu Bóveda y crear un Nuevo Secreto con la API Key correspondiente.` };
+      setChatHistories(prev => ({
+          ...prev,
+          [activeTemplate.id]: [...(prev[activeTemplate.id] || []), errorResponse]
+      }));
+    } finally {
+      setIsAiTyping(false);
+    }
   };
 
   const handleClearChat = () => {
