@@ -45,7 +45,7 @@ import { AiCopilotModal } from './components/ai/AiCopilotModal';
 
 import { SignedIn, SignedOut, SignIn, UserButton, useAuth } from '@clerk/clerk-react';
 import { createSupabaseClient } from './lib/supabaseClient';
-import { encryptApiKey } from './lib/crypto';
+import { encryptApiKey, decryptApiKey } from './lib/crypto';
 import { ConfirmModal } from './components/common/ConfirmModal';
 import { ToastContainer } from './components/common/Toast';
 
@@ -238,7 +238,56 @@ function VaultCore() {
   };
 
   const handleUnlock = async (enteredPassword) => {
-    const data = await unlockVault(enteredPassword);
+    let data = await unlockVault(enteredPassword);
+    
+    // --- NUEVO: Sincronización desde Supabase ---
+    try {
+      addToast('Sincronizando bóveda con la nube...', 'info');
+      const token = await getToken({ template: 'supabase' });
+      const supabase = createSupabaseClient(token);
+      
+      const { data: cloudSecrets, error } = await supabase.from('vault_secrets').select('*');
+      
+      if (!error && cloudSecrets && cloudSecrets.length > 0) {
+        let syncedSecrets = [...(data?.secrets || [])];
+        let wasUpdated = false;
+        
+        for (const cloudSec of cloudSecrets) {
+          // Chequear si ya lo tenemos localmente
+          const localExists = syncedSecrets.find(s => (s.id === cloudSec.id || s.id === cloudSec.encrypted_key));
+          if (!localExists) {
+            try {
+              // Desencriptar con la llave maestra (Clerk ID)
+              const decryptedValue = await decryptApiKey(cloudSec.encrypted_key, cloudSec.iv, userId);
+              syncedSecrets.push({
+                id: cloudSec.id,
+                title: cloudSec.provider + " (Nube)",
+                varName: cloudSec.provider.toUpperCase() + "_KEY",
+                value: decryptedValue,
+                providerId: cloudSec.provider,
+                environment: "production",
+                category: "ai",
+                type: "api_key",
+                createdAt: cloudSec.created_at
+              });
+              wasUpdated = true;
+            } catch (decErr) {
+              console.error("Error desencriptando llave de la nube:", decErr);
+            }
+          }
+        }
+        
+        if (wasUpdated) {
+          data = { ...data, secrets: syncedSecrets };
+          saveVault(enteredPassword, data);
+          addToast('Descarga completada y desencriptada.', 'success');
+        }
+      }
+    } catch (err) {
+      console.error('Error sincronizando con Supabase:', err);
+    }
+    // --------------------------------------------
+
     setMasterPassword(enteredPassword);
     setVaultData(data);
     setAuthState('UNLOCKED');
