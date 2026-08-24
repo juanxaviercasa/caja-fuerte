@@ -3,6 +3,67 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* DARK THEME (Default) */
+    --vault-950: #07090e;
+    --vault-900: #0b0f17;
+    --vault-850: #0f1420;
+    --vault-800: #141b2d;
+    --vault-750: #1b233a;
+    --vault-700: #222d4a;
+    --vault-600: #324068;
+    --vault-500: #46598e;
+    --vault-accent: #10b981;
+    --vault-cyan: #06b6d4;
+    --vault-indigo: #6366f1;
+    --vault-gold: #f59e0b;
+    --vault-danger: #ef4444;
+
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --slate-950: #020617;
+  }
+
+  :root.light {
+    /* LIGHT THEME (Inverted) */
+    --vault-950: #f8fafc;
+    --vault-900: #f1f5f9;
+    --vault-850: #e2e8f0;
+    --vault-800: #cbd5e1;
+    --vault-750: #94a3b8;
+    --vault-700: #64748b;
+    --vault-600: #475569;
+    --vault-500: #334155;
+    
+    /* Slightly darker accents for better contrast on light */
+    --vault-accent: #059669;
+    --vault-cyan: #0891b2;
+    --vault-indigo: #4f46e5;
+    --vault-gold: #d97706;
+    --vault-danger: #dc2626;
+
+    /* Invert Slate for text/borders (950 becomes 50, etc) */
+    --slate-50: #020617;
+    --slate-100: #0f172a;
+    --slate-200: #1e293b;
+    --slate-300: #334155;
+    --slate-400: #475569;
+    --slate-500: #64748b;
+    --slate-600: #94a3b8;
+    --slate-700: #cbd5e1;
+    --slate-800: #e2e8f0;
+    --slate-900: #f1f5f9;
+    --slate-950: #f8fafc;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(70, 89, 142, 0.4) transparent;
@@ -59,3 +120,59 @@
 .glow-indigo {
   box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
 }
+
+.light .text-slate-100 { color: #0f172a; }
+.light .text-slate-200 { color: #1e293b; }
+.light .text-slate-300 { color: #334155; }
+.light .text-slate-400 { color: #475569; }
+.light .text-emerald-400 { color: #059669; }
+.light .bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.15); }
+.light .bg-emerald-500\/15 { background-color: rgba(16, 185, 129, 0.2); }
+.light .text-emerald-300 { color: #059669; }
+.light .border-slate-800 { border-color: #cbd5e1; }
+.light .border-slate-700 { border-color: #94a3b8; }
+.light .bg-slate-800 { background-color: #e2e8f0; }
+.light .bg-slate-800\/80 { background-color: rgba(226, 232, 240, 0.8); }
+.light .bg-vault-900 { background-color: #f1f5f9; }
+.light .bg-vault-900\/50 { background-color: rgba(241, 245, 249, 0.5); }
+.light .bg-vault-900\/90 { background-color: rgba(241, 245, 249, 0.9); }
+.light .bg-vault-950 { background-color: #f8fafc; }
+.light .shadow-cyan-950\/30 { box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.1); }
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.light .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.light .glass-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(5, 150, 105, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 0 15px rgba(5, 150, 105, 0.1);
+}
+.light .border-slate-800\/80 { border-color: rgba(226, 232, 240, 0.8); }
+.light .border-slate-700\/60 { border-color: rgba(203, 213, 225, 0.6); }
+.light .bg-slate-800\/60 { background-color: rgba(226, 232, 240, 0.6); }
+.light .text-purple-300 { color: #7e22ce; }
+.light .text-purple-400 { color: #6b21a8; }
+.light .text-purple-500 { color: #581c87; }
+.light .text-fuchsia-300 { color: #a21caf; }
+.light .text-fuchsia-400 { color: #86198f; }
+.light .text-pink-300 { color: #be185d; }
+.light .text-pink-400 { color: #9d174d; }
+.light .text-cyan-300 { color: #0e7490; }
+.light .text-cyan-300\/80 { color: rgba(14, 116, 144, 0.9); }
+.light .bg-cyan-950 { background-color: #cffafe; }
+.light .border-cyan-500\/40 { border-color: rgba(6, 182, 212, 0.4); }
+.light .text-emerald-200 { color: #065f46; }
+.light .text-emerald-400 { color: #047857; }
+.light .bg-emerald-950 { background-color: #d1fae5; }
+.light .border-emerald-500\/30 { border-color: rgba(16, 185, 129, 0.4); }
+.light .text-amber-200 { color: #92400e; }
+.light .text-amber-400 { color: #b45309; }
+.light .bg-amber-950 { background-color: #fef3c7; }
+.light .border-amber-500\/30 { border-color: rgba(245, 158, 11, 0.4); }

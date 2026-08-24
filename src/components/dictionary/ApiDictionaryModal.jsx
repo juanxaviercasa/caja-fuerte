@@ -119,28 +119,44 @@ export function ApiDictionaryModal({
           </div>
         </div>
 
-        {/* Categories Horizontal Scroller */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-thin">
-          {DICTIONARY_CATEGORIES.map(cat => {
-            const Icon = getCategoryIcon(cat.id);
-            const isSelected = selectedCategory === cat.id;
+        {/* Categories Filter */}
+        <div className="mb-2">
+          {/* Mobile Dropdown */}
+          <div className="md:hidden">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-vault-900 border border-slate-700 text-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 appearance-none"
+            >
+              {DICTIONARY_CATEGORIES.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
 
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
-                  isSelected
-                    ? 'bg-slate-800 border-2 border-cyan-500 text-slate-100 shadow-md'
-                    : 'bg-vault-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${cat.color || 'text-slate-400'}`} />
-                <span>{cat.name}</span>
-              </button>
-            );
-          })}
+          {/* Desktop Pills */}
+          <div className="hidden md:flex flex-wrap items-center gap-1.5 pb-2">
+            {DICTIONARY_CATEGORIES.map(cat => {
+              const Icon = getCategoryIcon(cat.id);
+              const isSelected = selectedCategory === cat.id;
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                    isSelected
+                      ? 'bg-slate-800 border-2 border-cyan-500 text-slate-100 shadow-md'
+                      : 'bg-vault-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${cat.color || 'text-slate-400'}`} />
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* APIs Grid */}
@@ -247,3 +263,4 @@ export function ApiDictionaryModal({
     </Modal>
   );
 }
+

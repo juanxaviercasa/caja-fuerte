@@ -19,7 +19,7 @@ import {
   Layers
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
-import { PROVIDER_TEMPLATES } from '../../data/providers';
+import { API_DICTIONARY } from '../../data/apiDictionary';
 
 export function InteractiveGuideModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'structure' | 'env-usage' | 'devops' | 'security'
@@ -33,7 +33,7 @@ export function InteractiveGuideModal({ isOpen, onClose }) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filteredCatalog = PROVIDER_TEMPLATES.filter(p => {
+  const filteredCatalog = API_DICTIONARY.filter(p => {
     const matchCat = catalogCategoryFilter === 'all' || p.category === catalogCategoryFilter;
     const matchSearch = p.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||
                         p.description.toLowerCase().includes(catalogSearch.toLowerCase()) ||
@@ -63,7 +63,7 @@ export function InteractiveGuideModal({ isOpen, onClose }) {
             }`}
           >
             <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span>Catálogo 30+ APIs Cloud Gratuitas</span>
+            <span>Catálogo 220+ APIs Cloud</span>
           </button>
 
           <button
@@ -119,14 +119,14 @@ export function InteractiveGuideModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* TAB 1: CATALOG OF 30+ FREE AI APIS */}
+        {/* TAB 1: CATALOG OF 220+ FREE AI APIS */}
         {activeTab === 'catalog' && (
           <div className="space-y-5 animate-fadeIn">
             
             <div className="p-4 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-transparent rounded-2xl border border-emerald-500/20 text-xs space-y-1">
               <h4 className="font-bold text-slate-100 flex items-center gap-2 text-sm">
                 <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>30+ APIs de Inteligencia Artificial y Cloud 100% en la Nube</span>
+                <span>220+ APIs de Inteligencia Artificial, Ciberseguridad y Cloud</span>
               </h4>
               <p className="text-slate-300 leading-relaxed">
                 Todas estas plataformas ofrecen <strong>acceso directo por API sin tener que descargar software local ni modelos en tu PC</strong>. Puedes crear cuentas gratuitas y guardar tus claves aquí en DevVault para usarlas en cualquier momento.
@@ -142,7 +142,7 @@ export function InteractiveGuideModal({ isOpen, onClose }) {
                     catalogCategoryFilter === 'all' ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:bg-slate-900'
                   }`}
                 >
-                  Todos ({PROVIDER_TEMPLATES.length})
+                  Todos ({API_DICTIONARY.length})
                 </button>
                 <button
                   onClick={() => setCatalogCategoryFilter('ai')}
@@ -206,7 +206,7 @@ export function InteractiveGuideModal({ isOpen, onClose }) {
                     </div>
                     <p className="text-slate-300 text-xs leading-relaxed">{p.description}</p>
                     <div className="text-[11px] text-emerald-400 font-medium">
-                      🎁 {p.quotaInfo}
+                      🎁 {p.freeTier || 'Tier gratuito disponible'}
                     </div>
                   </div>
 

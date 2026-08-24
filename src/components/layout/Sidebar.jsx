@@ -25,7 +25,8 @@ import {
   Cpu,
   X,
   Compass,
-  FolderLock
+  FolderLock,
+  Waypoints
 } from 'lucide-react';
 import { CATEGORIES, ENVIRONMENTS } from '../../data/providers';
 
@@ -57,7 +58,8 @@ export function Sidebar({
   onOpenCopilotChat,
   onOpenAiSettings,
   isMobileMenuOpen = false,
-  onCloseMobileMenu = () => {}
+  onCloseMobileMenu = () => {},
+  isSidebarCollapsed = false
 }) {
   const getCategoryIcon = (id) => {
     switch (id) {
@@ -118,9 +120,9 @@ export function Sidebar({
             <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 group-hover:scale-110 transition-transform">
               <Compass className="w-4 h-4" />
             </div>
-            <div>
-              <span className="block text-slate-100 font-extrabold text-xs">Enciclopedia de APIs & IA</span>
-              <span className="text-[10px] text-cyan-300/80 font-mono">120+ APIs • 30+ Modelos IA</span>
+            <div className="min-w-0 flex-1">
+              <span className="block text-slate-100 font-extrabold text-xs truncate">Enciclopedia APIs</span>
+              <span className="block text-[10px] text-cyan-300/80 font-mono truncate mt-0.5">Catálogo IA y Cloud</span>
             </div>
           </div>
           <span className="text-[10px] font-mono font-extrabold text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded-full border border-cyan-500/40">
@@ -143,6 +145,25 @@ export function Sidebar({
           </div>
           <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-500/30">
             {secrets.length}
+          </span>
+        </button>
+
+        {/* Flujos de IA */}
+        <button
+          id="tour-sidebar-workflows"
+          onClick={() => { setMainViewMode('workflows'); onCloseMobileMenu(); }}
+          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-left ${
+            mainViewMode === 'workflows'
+              ? 'bg-amber-500/20 border-amber-500/50 text-amber-200 shadow-md shadow-amber-950/30'
+              : 'bg-vault-900/60 hover:bg-slate-800/60 border-slate-800 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <Waypoints className="w-4 h-4 text-amber-400" />
+            <span>Flujos de IA (Pipelines)</span>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-md border border-amber-500/30">
+            NUEVO
           </span>
         </button>
 
@@ -410,8 +431,14 @@ export function Sidebar({
 
   return (
     <>
-      <aside className="hidden lg:flex shrink-0 border-r border-slate-800/90 bg-vault-950/60 min-h-[calc(100vh-4rem)]">
-        {sidebarContent}
+      <aside 
+        className={`hidden lg:flex shrink-0 border-slate-800/90 bg-vault-950/60 min-h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'w-0 opacity-0 overflow-hidden border-r-0' : 'w-72 border-r opacity-100'
+        }`}
+      >
+        <div className="w-72">
+          {sidebarContent}
+        </div>
       </aside>
 
       {isMobileMenuOpen && (

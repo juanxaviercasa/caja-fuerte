@@ -9,19 +9,32 @@ export default {
     extend: {
       colors: {
         vault: {
-          950: '#07090e',
-          900: '#0b0f17',
-          850: '#0f1420',
-          800: '#141b2d',
-          750: '#1b233a',
-          700: '#222d4a',
-          600: '#324068',
-          500: '#46598e',
-          accent: '#10b981', // emerald
-          cyan: '#06b6d4',
-          indigo: '#6366f1',
-          gold: '#f59e0b',
-          danger: '#ef4444'
+          950: 'var(--vault-950)',
+          900: 'var(--vault-900)',
+          850: 'var(--vault-850)',
+          800: 'var(--vault-800)',
+          750: 'var(--vault-750)',
+          700: 'var(--vault-700)',
+          600: 'var(--vault-600)',
+          500: 'var(--vault-500)',
+          accent: 'var(--vault-accent)', 
+          cyan: 'var(--vault-cyan)',
+          indigo: 'var(--vault-indigo)',
+          gold: 'var(--vault-gold)',
+          danger: 'var(--vault-danger)'
+        },
+        slate: {
+          50: 'var(--slate-50)',
+          100: 'var(--slate-100)',
+          200: 'var(--slate-200)',
+          300: 'var(--slate-300)',
+          400: 'var(--slate-400)',
+          500: 'var(--slate-500)',
+          600: 'var(--slate-600)',
+          700: 'var(--slate-700)',
+          800: 'var(--slate-800)',
+          900: 'var(--slate-900)',
+          950: 'var(--slate-950)'
         }
       },
       fontFamily: {

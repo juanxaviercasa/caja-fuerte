@@ -51,8 +51,8 @@ export function MasterPasswordSetup({ onComplete }) {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-4 shadow-lg shadow-emerald-950/50">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden border border-emerald-500/30 mb-4 shadow-lg shadow-emerald-950/50 bg-slate-900">
+            <img src="/devvault-logo.jpg" alt="DevVault" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
             Configurar tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">DevVault</span>

@@ -6,6 +6,8 @@ import {
   saveVault, 
   resetAllVaultData 
 } from './services/storage';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 
 import { MasterPasswordSetup } from './components/auth/MasterPasswordSetup';
 import { UnlockVault } from './components/auth/UnlockVault';
@@ -13,6 +15,8 @@ import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { SecretList } from './components/secrets/SecretList';
 import { ApiEncyclopediaView } from './components/dictionary/ApiEncyclopediaView';
+import { WorkflowsView } from './components/workflows/WorkflowsView';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { SecretModal } from './components/secrets/SecretModal';
 import { SecretQuickView } from './components/secrets/SecretQuickView';
@@ -39,20 +43,46 @@ import { AiSettingsModal } from './components/ai/AiSettingsModal';
 import { AiOrganizerModal } from './components/ai/AiOrganizerModal';
 import { AiCopilotModal } from './components/ai/AiCopilotModal';
 
+import { SignedIn, SignedOut, SignIn, UserButton, useAuth } from '@clerk/clerk-react';
+import { createSupabaseClient } from './lib/supabaseClient';
+import { encryptApiKey } from './lib/crypto';
 import { ConfirmModal } from './components/common/ConfirmModal';
 import { ToastContainer } from './components/common/Toast';
 
 export default function App() {
+  return (
+    <>
+      <SignedOut>
+        <div className="min-h-screen bg-vault-950 flex flex-col items-center justify-center p-4">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">
+              DevVault
+            </h1>
+            <p className="text-slate-400">Acceso restringido. Bóveda encriptada.</p>
+          </div>
+          <SignIn routing="hash" />
+        </div>
+      </SignedOut>
+      <SignedIn>
+        <VaultCore />
+      </SignedIn>
+    </>
+  );
+}
+
+function VaultCore() {
+  const { getToken, userId } = useAuth();
   // Vault state
   const [authState, setAuthState] = useState('CHECKING');
   const [masterPassword, setMasterPassword] = useState('');
   const [vaultData, setVaultData] = useState(null);
 
   // Main UI Screen Mode: 'vault' | 'encyclopedia'
-  const [mainViewMode, setMainViewMode] = useState('encyclopedia'); // Open directly into the Encyclopedia of 120+ APIs by default so the user sees the comprehensive catalog immediately!
+  const [mainViewMode, setMainViewMode] = useState('encyclopedia');
 
-  // Mobile navigation drawer state
+  // Mobile navigation drawer & Desktop Sidebar state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Navigation & Filtering
   const [activeProjectId, setActiveProjectId] = useState('all');
@@ -129,6 +159,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('devvault-theme');
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    }
+  }, []);
+
+  useEffect(() => {
     if (authState !== 'UNLOCKED') return;
 
     const handleUserActivity = () => resetActivity();
@@ -144,6 +181,24 @@ export default function App() {
       window.removeEventListener('touchstart', handleUserActivity);
     };
   }, [authState, resetActivity]);
+
+  const startTour = useCallback(() => {
+    const driverObj = driver({
+      showProgress: true,
+      animate: true,
+      doneBtnText: 'Terminar',
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      steps: [
+        { element: '#tour-navbar-logo', popover: { title: 'Tu Bóveda', description: 'Bienvenido a DevVault. Aquí podrás gestionar todas tus API Keys de forma segura.' } },
+        { element: '#tour-view-pills', popover: { title: 'Vistas Principales', description: 'Alterna entre tus secretos cifrados o explora nuestra enciclopedia masiva de APIs.' } },
+        { element: '#global-vault-search', popover: { title: 'Buscador y Voz', description: 'Busca al instante. Haz clic en el micrófono para dictar lo que necesites.' } },
+        { element: '#tour-new-secret', popover: { title: 'Crear Secreto', description: 'Registra aquí nuevas API Keys, bases de datos o variables de entorno.' } },
+        { element: '#tour-sidebar-workflows', popover: { title: 'Flujos de IA', description: 'Encadena múltiples APIs (ej. Shodan + Gemini) para crear automatizaciones visuales.' } }
+      ]
+    });
+    driverObj.drive();
+  }, []);
 
   useEffect(() => {
     if (authState !== 'UNLOCKED') return;
@@ -198,23 +253,37 @@ export default function App() {
   };
 
   // Secret Operations
-  const handleSaveSecret = (secretPayload) => {
+  const handleSaveSecret = async (secretPayload) => {
     const existingIndex = (vaultData?.secrets || []).findIndex(s => s.id === secretPayload.id);
     let updatedSecrets = [];
 
     if (existingIndex >= 0) {
       updatedSecrets = [...vaultData.secrets];
       updatedSecrets[existingIndex] = secretPayload;
-      addToast(`Secreto "${secretPayload.title}" actualizado.`, 'success');
+      addToast(`Secreto "${secretPayload.title}" actualizado en la nube.`, 'success');
     } else {
       updatedSecrets = [secretPayload, ...(vaultData?.secrets || [])];
-      addToast(`Secreto "${secretPayload.title}" guardado y cifrado.`, 'success');
+      addToast(`Secreto "${secretPayload.title}" guardado en la Nube ☁️`, 'success');
     }
 
     saveChanges({
       ...vaultData,
       secrets: updatedSecrets
     });
+
+    try {
+      const token = await getToken({ template: 'supabase' });
+      const supabase = createSupabaseClient(token);
+      const { encrypted_key, iv } = await encryptApiKey(secretPayload.value, userId);
+      await supabase.from('vault_secrets').upsert({
+        user_id: userId,
+        provider: secretPayload.providerId || 'custom',
+        encrypted_key,
+        iv
+      });
+    } catch(err) {
+      console.error('Error supabase:', err);
+    }
   };
 
   const handleDeleteSecret = (secret) => {
@@ -515,6 +584,7 @@ export default function App() {
         onOpenSettings={() => setIsSettingsModalOpen(true)}
         onOpenAiPlayground={() => setIsAiPlaygroundOpen(true)}
         onOpenGuide={() => setIsGuideOpen(true)}
+        onStartTour={startTour}
         onOpenAutoOrganizer={() => setIsAiOrganizerOpen(true)}
         onOpenCopilotChat={() => setIsAiCopilotOpen(true)}
         onLockVault={handleLockVault}
@@ -522,6 +592,8 @@ export default function App() {
         lastActivityTime={lastActivityTime}
         isMobileMenuOpen={isMobileMenuOpen}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
       {/* 2. Sidebar + Content */}
@@ -544,6 +616,7 @@ export default function App() {
           onOpenPasswordGenerator={() => setIsPasswordGeneratorOpen(true)}
           onOpenAiPlayground={() => setIsAiPlaygroundOpen(true)}
           onOpenSecurityAudit={() => setIsSecurityAuditOpen(true)}
+          onOpenBackup={() => setIsBackupModalOpen(true)}
           onOpenEnvDiff={() => setIsEnvDiffOpen(true)}
           onOpenSdk={() => {
             setSdkSelectedSecret(null);
@@ -559,43 +632,68 @@ export default function App() {
           onOpenAiSettings={() => setIsAiSettingsOpen(true)}
           isMobileMenuOpen={isMobileMenuOpen}
           onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+          isSidebarCollapsed={isSidebarCollapsed}
         />
 
-        <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-b from-vault-950 to-vault-900 w-full">
-          {mainViewMode === 'encyclopedia' ? (
-            <ApiEncyclopediaView
-              onConnectApiToVault={handleConnectApiFromDictionary}
-            />
-          ) : (
-            <SecretList
-              secrets={vaultData?.secrets || []}
-              projects={vaultData?.projects || []}
-              activeProject={currentProjectObj}
-              activeEnvironment={activeEnvironment}
-              activeCategory={activeCategory}
-              searchQuery={searchQuery}
-              onOpenNewSecret={() => {
-                setEditingSecret(null);
-                setPresetProviderId(null);
-                setIsSecretModalOpen(true);
-              }}
-              onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
-              onEditSecret={(sec) => {
-                setEditingSecret(sec);
-                setIsSecretModalOpen(true);
-              }}
-              onDeleteSecret={handleDeleteSecret}
-              onQuickViewSecret={(sec) => {
-                setInspectingSecret(sec);
-                setIsQuickViewOpen(true);
-              }}
-              onTestApiSecret={handleTestApiSecret}
-              onCopySecret={handleCopySecretToast}
-              onSelectProviderPreset={handleOpenNewSecretWithPreset}
-              onToggleFavorite={handleToggleFavorite}
-              onOpenSdk={handleOpenSdkForSecret}
-            />
-          )}
+        <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-b from-vault-950 to-vault-900 w-full relative">
+          <AnimatePresence mode="wait">
+            {mainViewMode === 'encyclopedia' && (
+              <motion.div
+                key="encyclopedia"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                className="w-full h-full"
+              >
+                <ApiEncyclopediaView
+                  onConnectApiToVault={handleConnectApiFromDictionary}
+                />
+              </motion.div>
+            )}
+            {mainViewMode === 'vault' && (
+              <motion.div
+                key="vault"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                className="w-full h-full flex flex-col"
+              >
+                <SecretList
+                  secrets={vaultData?.secrets || []}
+                  projects={vaultData?.projects || []}
+                  activeProject={currentProjectObj}
+                  activeEnvironment={activeEnvironment}
+                  activeCategory={activeCategory}
+                  searchQuery={searchQuery}
+                  onOpenNewSecret={() => {
+                    setEditingSecret(null);
+                    setPresetProviderId(null);
+                    setIsSecretModalOpen(true);
+                  }}
+                  onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
+                  onEditSecret={(sec) => {
+                    setEditingSecret(sec);
+                    setIsSecretModalOpen(true);
+                  }}
+                  onDeleteSecret={handleDeleteSecret}
+                  onQuickViewSecret={(sec) => {
+                    setInspectingSecret(sec);
+                    setIsQuickViewOpen(true);
+                  }}
+                  onTestApiSecret={handleTestApiSecret}
+                  onCopySecret={handleCopySecretToast}
+                  onSelectProviderPreset={handleOpenNewSecretWithPreset}
+                  onToggleFavorite={handleToggleFavorite}
+                  onOpenSdk={handleOpenSdkForSecret}
+                />
+              </motion.div>
+            )}
+            {mainViewMode === 'workflows' && (
+              <WorkflowsView key="workflows" />
+            )}
+          </AnimatePresence>
         </main>
       </div>
 

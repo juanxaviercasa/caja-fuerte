@@ -36,8 +36,8 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
         
         {/* Vault Dial / Icon */}
         <div className="text-center mb-8">
-          <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-vault-900 to-vault-800 border-2 border-emerald-500/30 text-emerald-400 mb-4 shadow-xl glow-emerald">
-            <Lock className="w-9 h-9 animate-pulse-slow" />
+          <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-3xl overflow-hidden border-2 border-emerald-500/30 mb-4 shadow-xl glow-emerald bg-slate-900">
+            <img src="/devvault-logo.jpg" alt="DevVault" className="w-full h-full object-cover" />
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-ping" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
