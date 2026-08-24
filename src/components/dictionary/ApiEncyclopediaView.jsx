@@ -23,7 +23,11 @@ import {
   ChevronDown,
   Filter,
   Flame,
-  Globe
+  Globe,
+  ShieldAlert,
+  UserCheck,
+  Eye,
+  Radar
 } from 'lucide-react';
 import { API_DICTIONARY, DICTIONARY_CATEGORIES } from '../../data/apiDictionary';
 
@@ -31,7 +35,6 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [copiedId, setCopiedId] = useState(null);
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
   const handleCopy = (id, text) => {
     navigator.clipboard.writeText(text);
@@ -56,14 +59,14 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
 
   const getCategoryIcon = (catId) => {
     switch (catId) {
+      case 'cybersecurity-ethical': return ShieldAlert;
+      case 'digital-humans-creative': return UserCheck;
       case 'time-machine-science': return History;
       case 'ai-advanced-hidden': return Sparkles;
       case 'ai-llm': return BrainCircuit;
       case 'ai-voice-realtime': return Mic;
       case 'ai-search-scraping': return Search;
-      case 'ai-vision-3d': return Sparkles;
       case 'database-vector-graph': return Database;
-      case 'ai-observability': return Activity;
       case 'auth-security': return ShieldCheck;
       case 'email-messaging': return Mail;
       case 'payments-fintech': return CreditCard;
@@ -79,9 +82,6 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
     return API_DICTIONARY.filter(item => item.category === catId).length;
   };
 
-  const activeCategoryObj = DICTIONARY_CATEGORIES.find(c => c.id === selectedCategory) || DICTIONARY_CATEGORIES[0];
-  const ActiveIcon = getCategoryIcon(activeCategoryObj.id);
-
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn">
       
@@ -92,15 +92,15 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
         <div className="relative z-10 space-y-3 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>ENCICLOPEDIA DE 160+ APIS Y MODELOS EN LA NUBE</span>
+            <span>ENCICLOPEDIA UNIVERSAL DE 180+ APIS Y MODELOS CLOUD</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-            Directorio de APIs: <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-cyan-400 to-emerald-400">Máquina del Tiempo, IA Avanzada & Ciencia</span>
+            Enciclopedia de APIs: <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-pink-400 to-cyan-400">Ciberseguridad, Avatares Virtuales & IA Avanzada</span>
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Explora más de <strong>160 APIs organizadas</strong>: desde archivos históricos y satélites espaciales de la NASA, hasta inferencias ultra rápidas en LPUs, biocomputación (AlphaFold), grafos de conocimiento y modelos de IA desconocidos por el 99% de desarrolladores.
+            Explora más de <strong>180 APIs catalogadas</strong>: Inteligencia de amenazas defensiva y reconocimiento de infraestructura (Shodan, Censys, CVEs, GreyNoise), pipelines abiertos de generación visual y avatares fotorrealistas (Civitai, FLUX, ComfyUI Cloud, Replicate), la máquina del tiempo histórica (Wayback Machine, NASA, AlphaFold) y modelos de lenguaje de última generación.
           </p>
         </div>
       </div>
@@ -115,7 +115,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Buscar por nombre (ej. Wayback Machine, Gemini, Qwen, Deepgram, AlphaFold), variable o caso de uso..."
+            placeholder="🔍 Buscar por nombre (ej. Shodan, Censys, FLUX, Civitai, Gemini, AlphaFold), variable o caso de uso..."
             className="w-full pl-12 pr-10 py-3.5 bg-vault-900 border border-slate-700/90 rounded-2xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono shadow-inner transition-all"
           />
           {searchQuery && (
@@ -128,7 +128,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
           )}
         </div>
 
-        {/* Category Selector UI: Grid / Dropdown (Reemplaza el molesto scroll horizontal) */}
+        {/* Multi-row Category Selector */}
         <div className="p-4 bg-vault-900/90 rounded-3xl border border-slate-800 space-y-3">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
@@ -286,7 +286,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
             onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
             className="px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded-xl font-bold text-xs hover:bg-cyan-500/30"
           >
-            Ver todas las 160+ APIs
+            Ver todas las 180+ APIs
           </button>
         </div>
       )}
