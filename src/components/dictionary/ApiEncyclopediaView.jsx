@@ -16,19 +16,22 @@ import {
   Cloud, 
   MapPin, 
   Layers,
-  ArrowRight,
+  History,
+  Activity,
+  Dna,
   Zap,
-  Info,
-  CheckCircle2,
-  Terminal
+  ChevronDown,
+  Filter,
+  Flame,
+  Globe
 } from 'lucide-react';
 import { API_DICTIONARY, DICTIONARY_CATEGORIES } from '../../data/apiDictionary';
 
 export function ApiEncyclopediaView({ onConnectApiToVault }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('ai-llm'); // Default directly to AI & LLMs so the 30+ AI models are immediately in front of the user!
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [copiedId, setCopiedId] = useState(null);
-  const [selectedApiDetail, setSelectedApiDetail] = useState(null);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
   const handleCopy = (id, text) => {
     navigator.clipboard.writeText(text);
@@ -38,7 +41,9 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
 
   const filteredApis = API_DICTIONARY.filter(item => {
     const matchCat = selectedCategory === 'all' || item.category === selectedCategory;
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return matchCat;
+
     const matchSearch = 
       item.name.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
@@ -51,11 +56,14 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
 
   const getCategoryIcon = (catId) => {
     switch (catId) {
+      case 'time-machine-science': return History;
+      case 'ai-advanced-hidden': return Sparkles;
       case 'ai-llm': return BrainCircuit;
-      case 'ai-voice': return Mic;
+      case 'ai-voice-realtime': return Mic;
       case 'ai-search-scraping': return Search;
-      case 'ai-vision-media': return Sparkles;
-      case 'database-vector': return Database;
+      case 'ai-vision-3d': return Sparkles;
+      case 'database-vector-graph': return Database;
+      case 'ai-observability': return Activity;
       case 'auth-security': return ShieldCheck;
       case 'email-messaging': return Mail;
       case 'payments-fintech': return CreditCard;
@@ -66,49 +74,49 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
     }
   };
 
-  // Count items per category
   const getCategoryItemCount = (catId) => {
     if (catId === 'all') return API_DICTIONARY.length;
     return API_DICTIONARY.filter(item => item.category === catId).length;
   };
 
-  const aiTotalCount = API_DICTIONARY.filter(i => i.category.startsWith('ai')).length;
+  const activeCategoryObj = DICTIONARY_CATEGORIES.find(c => c.id === selectedCategory) || DICTIONARY_CATEGORIES[0];
+  const ActiveIcon = getCategoryIcon(activeCategoryObj.id);
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn">
       
-      {/* 1. Big Hero Banner */}
+      {/* 1. Hero Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-vault-900 via-vault-900/90 to-cyan-950/40 border border-cyan-500/30 relative overflow-hidden shadow-2xl">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-cyan-500/10 to-transparent pointer-events-none" />
         
         <div className="relative z-10 space-y-3 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>DIRECTORIO VISUAL DE 120+ APIS Y MODELOS CLOUD</span>
+            <span>ENCICLOPEDIA DE 160+ APIS Y MODELOS EN LA NUBE</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-            Enciclopedia de APIs de <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-300">Inteligencia Artificial & Desarrollo</span>
+            Directorio de APIs: <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-cyan-400 to-emerald-400">Máquina del Tiempo, IA Avanzada & Ciencia</span>
           </h2>
 
-          <p className="text-sm text-slate-300 leading-relaxed">
-            Aquí tienes la lista completa y organizada de <strong>más de {aiTotalCount} APIs de Inteligencia Artificial (Gemini, Groq, Qwen, Cerebras, SambaNova, Mistral, Hugging Face, DeepSeek...)</strong> y más de 100 servicios cloud. Todas cuentan con <strong>acceso 100% en la nube y cuotas gratuitas</strong> sin tener que instalar software pesado en tu PC.
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Explora más de <strong>160 APIs organizadas</strong>: desde archivos históricos y satélites espaciales de la NASA, hasta inferencias ultra rápidas en LPUs, biocomputación (AlphaFold), grafos de conocimiento y modelos de IA desconocidos por el 99% de desarrolladores.
           </p>
         </div>
       </div>
 
-      {/* 2. Category Tabs & Search Bar */}
+      {/* 2. Search & Category Controls */}
       <div className="space-y-4">
         
-        {/* Search Input Bar */}
+        {/* Search Input */}
         <div className="relative">
           <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Buscar por nombre (ej. Gemini, Groq, Qwen, DeepSeek), variable (ej. GEMINI_API_KEY) o caso de uso..."
-            className="w-full pl-12 pr-10 py-3.5 bg-vault-900 border border-slate-700/90 rounded-2xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono shadow-inner transition-all"
+            placeholder="🔍 Buscar por nombre (ej. Wayback Machine, Gemini, Qwen, Deepgram, AlphaFold), variable o caso de uso..."
+            className="w-full pl-12 pr-10 py-3.5 bg-vault-900 border border-slate-700/90 rounded-2xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono shadow-inner transition-all"
           />
           {searchQuery && (
             <button
@@ -120,35 +128,54 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
           )}
         </div>
 
-        {/* Category Pills Scroller */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {DICTIONARY_CATEGORIES.map(cat => {
-            const Icon = getCategoryIcon(cat.id);
-            const isSelected = selectedCategory === cat.id;
-            const count = getCategoryItemCount(cat.id);
+        {/* Category Selector UI: Grid / Dropdown (Reemplaza el molesto scroll horizontal) */}
+        <div className="p-4 bg-vault-900/90 rounded-3xl border border-slate-800 space-y-3">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono">
+                Filtrar por Categoría:
+              </span>
+            </div>
 
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg shadow-cyan-950/50 scale-[1.02]'
-                    : 'bg-vault-900 border border-slate-800 text-slate-300 hover:text-slate-100 hover:bg-slate-800/80'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isSelected ? 'text-slate-950 stroke-[2.5]' : cat.color || 'text-slate-400'}`} />
-                <span>{cat.name}</span>
-                <span className={`text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full ${
-                  isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+            <div className="text-xs text-slate-400 font-mono">
+              Mostrando <strong className="text-cyan-300">{filteredApis.length}</strong> de <strong className="text-slate-200">{API_DICTIONARY.length}</strong> APIs
+            </div>
+          </div>
+
+          {/* Clean Multi-Row Category Pills Grid */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            {DICTIONARY_CATEGORIES.map(cat => {
+              const Icon = getCategoryIcon(cat.id);
+              const isSelected = selectedCategory === cat.id;
+              const count = getCategoryItemCount(cat.id);
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    isSelected
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-950/50 scale-[1.02] ring-2 ring-cyan-400/50'
+                      : 'bg-vault-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-slate-100'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-slate-950 stroke-[2.5]' : cat.color || 'text-slate-400'}`} />
+                  <span>{cat.name}</span>
+                  <span className={`text-[10px] font-mono font-extrabold px-2 py-0.2 rounded-full ${
+                    isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-850 text-slate-400'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
         </div>
+
       </div>
 
       {/* 3. APIs Cards Grid */}
@@ -158,7 +185,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
             key={api.id}
             className="p-5 bg-vault-900/90 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between space-y-4 shadow-lg hover:shadow-cyan-950/30 group"
           >
-            {/* Card Top: Title & Variable */}
+            {/* Card Content */}
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1">
@@ -224,7 +251,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
               </div>
             </div>
 
-            {/* Card Bottom: Action Buttons */}
+            {/* Card Footer Actions */}
             <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
               {api.consoleUrl && (
                 <a
@@ -259,7 +286,7 @@ export function ApiEncyclopediaView({ onConnectApiToVault }) {
             onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
             className="px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded-xl font-bold text-xs hover:bg-cyan-500/30"
           >
-            Ver todas las 120+ APIs
+            Ver todas las 160+ APIs
           </button>
         </div>
       )}

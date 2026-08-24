@@ -1,60 +1,539 @@
 /**
- * DevVault Universal API Dictionary & Catalog (120+ Curated APIs with Free Tiers)
- * Comprehensive directory of APIs for Developers with use cases, .env naming, free quotas and integration guides.
+ * DevVault Universal API Dictionary & Catalog (160+ Curated APIs with Free Tiers)
+ * Includes "Time Machine & Frontier Science", "Hidden/Advanced AI", "Real-time Voice Agents", "RAG/Knowledge Graphs"
  */
 
 export const DICTIONARY_CATEGORIES = [
-  { id: 'all', name: 'Todas las APIs', icon: 'Sparkles', count: '120+' },
-  { id: 'ai-llm', name: 'Inteligencia Artificial & LLMs', icon: 'BrainCircuit', color: 'text-cyan-400' },
-  { id: 'ai-voice', name: 'Voz, Audio & Speech AI', icon: 'Mic', color: 'text-emerald-400' },
-  { id: 'ai-search-scraping', name: 'Scraping & RAG para Agentes', icon: 'Search', color: 'text-amber-400' },
-  { id: 'ai-vision-media', name: 'Imágenes, Video & Media AI', icon: 'Image', color: 'text-rose-400' },
-  { id: 'database-vector', name: 'Bases de Datos & Vector DBs', icon: 'Database', color: 'text-teal-400' },
-  { id: 'auth-security', name: 'Autenticación & Ciberseguridad', icon: 'ShieldCheck', color: 'text-purple-400' },
-  { id: 'email-messaging', name: 'Emails, SMS & Notificaciones', icon: 'Mail', color: 'text-blue-400' },
-  { id: 'payments-fintech', name: 'Pagos, Divisas & Facturación', icon: 'CreditCard', color: 'text-green-400' },
-  { id: 'cloud-devops', name: 'Cloud, Hosting, Storage & CI/CD', icon: 'Cloud', color: 'text-indigo-400' },
-  { id: 'maps-geo-weather', name: 'Mapas, Geolocalización & Clima', icon: 'MapPin', color: 'text-orange-400' },
-  { id: 'productivity-social', name: 'Productividad, CRMs & Social', icon: 'Layers', color: 'text-pink-400' }
+  { id: 'all', name: 'Todas las APIs', icon: 'Sparkles', count: '160+' },
+  { id: 'time-machine-science', name: '⏳ Máquina del Tiempo & Ciencia', icon: 'History', color: 'text-amber-400' },
+  { id: 'ai-advanced-hidden', name: '🔮 IA Avanzada & Secretas (99% Desconocidas)', icon: 'Sparkles', color: 'text-purple-400' },
+  { id: 'ai-llm', name: '🧠 Modelos de Lenguaje & LLMs', icon: 'BrainCircuit', color: 'text-cyan-400' },
+  { id: 'ai-voice-realtime', name: '🎙️ Voz en Tiempo Real & Speech AI', icon: 'Mic', color: 'text-emerald-400' },
+  { id: 'ai-search-scraping', name: '🔍 Scraping, Crawlers & RAG', icon: 'Search', color: 'text-yellow-400' },
+  { id: 'ai-vision-3d', name: '🎨 Imágenes, Video & 3D Generativo', icon: 'Image', color: 'text-rose-400' },
+  { id: 'database-vector-graph', name: '🗄️ Bases de Datos, Vector & Grafos', icon: 'Database', color: 'text-teal-400' },
+  { id: 'ai-observability', name: '📊 Memoria & Observabilidad de LLMs', icon: 'Activity', color: 'text-indigo-400' },
+  { id: 'auth-security', name: '🔐 Autenticación & Ciberseguridad', icon: 'ShieldCheck', color: 'text-violet-400' },
+  { id: 'email-messaging', name: '📧 Emails, SMS & WebSockets', icon: 'Mail', color: 'text-blue-400' },
+  { id: 'payments-fintech', name: '💳 Pagos, Divisas & Facturación', icon: 'CreditCard', color: 'text-green-400' },
+  { id: 'cloud-devops', name: '☁️ Cloud, Serverless & Hosting', icon: 'Cloud', color: 'text-sky-400' },
+  { id: 'maps-geo-weather', name: '🗺️ Mapas, Geolocalización & Clima', icon: 'MapPin', color: 'text-orange-400' },
+  { id: 'productivity-social', name: '⚙️ Productividad & Social Media', icon: 'Layers', color: 'text-pink-400' }
 ];
 
 export const API_DICTIONARY = [
-  // ==========================================
-  // 1. INTELIGENCIA ARTIFICIAL & LLMS (20)
-  // ==========================================
+  // =========================================================================
+  // 1. ⏳ MÁQUINA DEL TIEMPO, CIENCIA DE VANGUARDIA & ARCHIVOS TEMPORALES (14)
+  // =========================================================================
   {
-    id: 'google-gemini',
+    id: 'wayback-machine-api',
+    name: 'Internet Archive (Wayback Machine API)',
+    category: 'time-machine-science',
+    icon: 'History',
+    badge: 'Máquina del Tiempo',
+    defaultVarName: 'WAYBACK_API_KEY',
+    description: 'Acceso programático a más de 800 mil millones de páginas web capturadas desde 1996 a la actualidad.',
+    useCase: 'Viajar en el tiempo para ver cómo era cualquier sitio web o noticia en una fecha y segundo exacto del pasado.',
+    freeTier: '100% Gratis e ilimitado vía availability & snapshot API pública sin tarjeta.',
+    consoleUrl: 'https://archive.org/help/wayback_api.php',
+    docsUrl: 'https://archive.org/developers/'
+  },
+  {
+    id: 'nasa-open-apis',
+    name: 'NASA Open APIs',
+    category: 'time-machine-science',
+    icon: 'Compass',
+    badge: 'Astronomía & Cosmos',
+    defaultVarName: 'NASA_API_KEY',
+    description: 'Datos astronómicos en tiempo real, fotos del Curiosity/Perseverance en Marte, asteroides cercanos y el telescopio Hubble/Webb.',
+    useCase: 'Crear aplicaciones espaciales, monitor de asteroides potencialmente peligrosos y fondo de pantalla del cosmos del día.',
+    freeTier: '1,000 peticiones por hora gratuitas por cuenta (DEMO_KEY pública disponible).',
+    consoleUrl: 'https://api.nasa.gov',
+    docsUrl: 'https://api.nasa.gov/#getting-started'
+  },
+  {
+    id: 'alphafold-ebi-db',
+    name: 'AlphaFold Protein 3D Structure Database',
+    category: 'time-machine-science',
+    icon: 'Dna',
+    badge: 'DeepMind Biología',
+    defaultVarName: 'ALPHAFOLD_API_ENDPOINT',
+    description: 'Base de datos del modelo de DeepMind que predijo la estructura 3D de más de 200 millones de proteínas conocidas por la ciencia.',
+    useCase: 'Diseño de fármacos, análisis de mutaciones biológicas e investigación médica con IA.',
+    freeTier: '100% Gratis y abierto al público mundial por EMBL-EBI.',
+    consoleUrl: 'https://alphafold.ebi.ac.uk',
+    docsUrl: 'https://alphafold.ebi.ac.uk/api-docs'
+  },
+  {
+    id: 'noaa-climate-history',
+    name: 'NOAA Climate Data Online (CDO)',
+    category: 'time-machine-science',
+    icon: 'CloudRain',
+    badge: '150 Años de Clima',
+    defaultVarName: 'NOAA_TOKEN',
+    description: 'Series temporales meteorológicas y climáticas de estaciones terrestres y satélites de los últimos 150 años.',
+    useCase: 'Modelado de cambio climático, predicción de cosechas y análisis histórico de temperaturas globales.',
+    freeTier: '100% Gratis con token de desarrollador (10,000 peticiones diarias).',
+    consoleUrl: 'https://www.ncdc.noaa.gov/cdo-web/token',
+    docsUrl: 'https://www.ncdc.noaa.gov/cdo-web/webservices/v2'
+  },
+  {
+    id: 'openalex-science-graph',
+    name: 'OpenAlex Scientific Graph',
+    category: 'time-machine-science',
+    icon: 'Network',
+    badge: '250M Papers',
+    defaultVarName: 'OPENALEX_API_KEY',
+    description: 'El grafo de conocimiento científico abierto más grande del mundo: 250M de papers, autores, citas e instituciones.',
+    useCase: 'Buscar el estado del arte de cualquier invento, evolución histórica de teorías y papers académicos.',
+    freeTier: '100,000 peticiones diarias 100% gratuitas sin costo alguno.',
+    consoleUrl: 'https://openalex.org',
+    docsUrl: 'https://docs.openalex.org'
+  },
+  {
+    id: 'worldbank-time-series',
+    name: 'World Bank Historical Time Series',
+    category: 'time-machine-science',
+    icon: 'TrendingUp',
+    badge: 'Historia 1960-2026',
+    defaultVarName: 'WORLDBANK_API_URL',
+    description: 'Miles de indicadores económicos, tecnológicos, demográficos y de energía de todos los países desde 1960.',
+    useCase: 'Analizar el crecimiento del PIB, acceso a internet y evolución histórica de naciones en el tiempo.',
+    freeTier: '100% Gratis y abierto sin registro necesario.',
+    consoleUrl: 'https://datahelpdesk.worldbank.org/knowledgebase/topics/125587',
+    docsUrl: 'https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-api-documentation'
+  },
+  {
+    id: 'usgs-earthquakes',
+    name: 'USGS Earthquake Real-time & History',
+    category: 'time-machine-science',
+    icon: 'Activity',
+    badge: 'Sismología Global',
+    defaultVarName: 'USGS_SEISMIC_API',
+    description: 'Datos de terremotos y eventos sísmicos en todo el planeta en tiempo real y registros históricos desde 1900.',
+    useCase: 'Sistemas de alerta temprana de tsunamis, mapas sísmicos y análisis geológico.',
+    freeTier: '100% Gratis e ilimitado (formato GeoJSON).',
+    consoleUrl: 'https://earthquake.usgs.gov/fdsnws/event/1/',
+    docsUrl: 'https://earthquake.usgs.gov/earthquakes/feed/'
+  },
+  {
+    id: 'wolfram-alpha-api',
+    name: 'Wolfram|Alpha Short Answer & Spoken API',
+    category: 'time-machine-science',
+    icon: 'Cpu',
+    badge: 'Física & Cálculo',
+    defaultVarName: 'WOLFRAM_APP_ID',
+    description: 'Motor de computación de conocimiento dinámico: matemáticas avanzadas, física cuántica, historia y astronomía.',
+    useCase: 'Dotar a LLMs de capacidad computacional matemática exacta sin alucinaciones.',
+    freeTier: '2,000 consultas no comerciales al mes gratis.',
+    consoleUrl: 'https://developer.wolframalpha.com/portal/myapps/',
+    docsUrl: 'https://products.wolframalpha.com/api/documentation'
+  },
+  {
+    id: 'chronicling-america',
+    name: 'Library of Congress (Chronicling America)',
+    category: 'time-machine-science',
+    icon: 'BookOpen',
+    badge: 'Periódicos 1777-1963',
+    defaultVarName: 'LOC_API_ENDPOINT',
+    description: 'Millones de páginas de periódicos históricos digitalizados de Estados Unidos y el mundo entre 1777 y 1963.',
+    useCase: 'Leer cómo reportaba la prensa el hundimiento del Titanic, la llegada a la luna o la gripe de 1918 en tiempo real.',
+    freeTier: '100% Gratis y abierto (sin API key requerida).',
+    consoleUrl: 'https://chroniclingamerica.loc.gov/about/api/',
+    docsUrl: 'https://chroniclingamerica.loc.gov/api/'
+  },
+  {
+    id: 'semantic-scholar-graph',
+    name: 'Semantic Scholar Graph API (Allen Institute)',
+    category: 'time-machine-science',
+    icon: 'Network',
+    badge: 'Grafos IA Papers',
+    defaultVarName: 'SEMANTIC_SCHOLAR_API_KEY',
+    description: 'Grafo de papers científicos impulsado por IA para encontrar conexiones semánticas y citas influyentes.',
+    useCase: 'Generación automática de estados del arte y literatura científica para agentes RAG.',
+    freeTier: '100 peticiones por minuto gratis con API Key.',
+    consoleUrl: 'https://www.semanticscholar.org/product/api',
+    docsUrl: 'https://api.semanticscholar.org/api-docs/'
+  },
+  {
+    id: 'crossref-metadata',
+    name: 'CrossRef Metadata API',
+    category: 'time-machine-science',
+    icon: 'Layers',
+    badge: '140M DOIs',
+    defaultVarName: 'CROSSREF_MAILTO',
+    description: 'Metadatos de más de 140 millones de publicaciones científicas y libros registrados con DOI en la historia.',
+    useCase: 'Resolver y verificar citas bibliográficas y autores históricos.',
+    freeTier: '100% Gratis con "Polite Pool" ingresando tu correo en el encabezado.',
+    consoleUrl: 'https://www.crossref.org/documentation/retrieve-metadata/rest-api/',
+    docsUrl: 'https://api.crossref.org'
+  },
+  {
+    id: 'pubchem-molecular',
+    name: 'PubChem REST API (NIH)',
+    category: 'time-machine-science',
+    icon: 'Dna',
+    badge: 'Química Molecular',
+    defaultVarName: 'PUBCHEM_API_ENDPOINT',
+    description: 'Base de datos de 115 millones de compuestos químicos, estructuras 3D SMILES y bioactividades.',
+    useCase: 'Búsqueda de propiedades de moléculas, toxicología e investigación de nuevos materiales.',
+    freeTier: '100% Gratis y público (hasta 5 peticiones por segundo).',
+    consoleUrl: 'https://pubchem.ncbi.nlm.nih.gov',
+    docsUrl: 'https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest'
+  },
+  {
+    id: 'chembl-ebi',
+    name: 'ChEMBL Bioactive Molecules API',
+    category: 'time-machine-science',
+    icon: 'Activity',
+    badge: 'Farmacología IA',
+    defaultVarName: 'CHEMBL_API_ENDPOINT',
+    description: 'Base de datos de moléculas bioactivas con propiedades farmacológicas y objetivos biológicos.',
+    useCase: 'Machine Learning para predicción de interacciones fármaco-proteína.',
+    freeTier: '100% Gratis e ilimitado.',
+    consoleUrl: 'https://www.ebi.ac.uk/chembl/',
+    docsUrl: 'https://www.ebi.ac.uk/chembl/api/data/docs'
+  },
+  {
+    id: 'ncbi-eutilities',
+    name: 'NCBI E-Utilities (Entrez / PubMed)',
+    category: 'time-machine-science',
+    icon: 'BookOpen',
+    badge: 'Genómica & Medicina',
+    defaultVarName: 'NCBI_API_KEY',
+    description: 'Acceso programático a 38 bases de datos biomédicas de los NIH: PubMed, GenBank, Nucleotide y BLAST.',
+    useCase: 'Extracción de secuencias de ADN y millones de abstracts médicos.',
+    freeTier: '10 peticiones por segundo gratis con API Key.',
+    consoleUrl: 'https://www.ncbi.nlm.nih.gov/account/settings/',
+    docsUrl: 'https://www.ncbi.nlm.nih.gov/books/NBK25501/'
+  },
+
+  // =========================================================================
+  // 2. 🔮 IA AVANZADA & SECRETAS (DESCONOCIDAS POR EL 99% DE DEVS) (14)
+  // =========================================================================
+  {
+    id: 'siliconflow-cloud',
+    name: 'SiliconFlow (SiliconCloud)',
+    category: 'ai-advanced-hidden',
+    icon: 'Zap',
+    badge: 'Inferencia Masiva Free',
+    defaultVarName: 'SILICONFLOW_API_KEY',
+    description: 'Plataforma asiática de inferencia cloud ultra rápida con Qwen 2.5, DeepSeek V3/R1, FLUX y BAAI Embeddings.',
+    useCase: 'Tener una alternativa de alta velocidad con millones de tokens gratuitos para producción.',
+    freeTier: '20 millones de tokens gratuitos iniciales de por vida.',
+    consoleUrl: 'https://cloud.siliconflow.cn/account/ak',
+    docsUrl: 'https://docs.siliconflow.cn'
+  },
+  {
+    id: 'deepinfra-serverless',
+    name: 'DeepInfra (Serverless AI Models)',
+    category: 'ai-advanced-hidden',
+    icon: 'Cpu',
+    badge: 'Modelos Baratos/Free',
+    defaultVarName: 'DEEPINFRA_API_KEY',
+    description: 'Inferencia serverless escalable con Llama 3.3, Whisper, Bark, Embeddings y SDXL.',
+    useCase: 'Despliegues con micro-costos y latencia muy reducida estilo pay-per-token.',
+    freeTier: 'Créditos iniciales gratuitos de bienvenida sin tarjeta.',
+    consoleUrl: 'https://deepinfra.com/dash/api_keys',
+    docsUrl: 'https://deepinfra.com/docs'
+  },
+  {
+    id: 'pollinations-ai',
+    name: 'Pollinations.ai (Free Generative URLs)',
+    category: 'ai-advanced-hidden',
+    icon: 'Sparkles',
+    badge: '100% Gratis Sin Registro',
+    defaultVarName: 'POLLINATIONS_API_URL',
+    description: 'Generación directa de imágenes y texto con IA por simple URL GET sin necesidad de API Key ni tarjetas.',
+    useCase: 'Generar imágenes y respuestas instantáneas en prototipos sin configuración.',
+    freeTier: '100% Ilimitado y gratuito para siempre en la web abierta.',
+    consoleUrl: 'https://pollinations.ai',
+    docsUrl: 'https://pollinations.ai/docs'
+  },
+  {
+    id: 'glhf-ai-cloud',
+    name: 'GLHF (Good Luck Have Fun AI)',
+    category: 'ai-advanced-hidden',
+    icon: 'Gamepad2',
+    badge: 'Model Hub Free',
+    defaultVarName: 'GLHF_API_KEY',
+    description: 'Inferencia serverless para modelos LLM de código abierto punteros con interfaz compatible con OpenAI.',
+    useCase: 'Experimentar con nuevos pesos de modelos en segundos.',
+    freeTier: 'Tier gratuito con saldo inicial para desarrolladores.',
+    consoleUrl: 'https://glhf.chat/users/settings/api',
+    docsUrl: 'https://glhf.chat'
+  },
+  {
+    id: 'zhipu-glm-4',
+    name: 'Zhipu AI (GLM-4 & CogVideo)',
+    category: 'ai-advanced-hidden',
+    icon: 'Bot',
+    badge: 'Líder Chino GLM',
+    defaultVarName: 'ZHIPU_API_KEY',
+    description: 'Modelos GLM-4 y CogVideoX creados por la Universidad de Tsinghua con razonamiento avanzado.',
+    useCase: 'Procesamiento de contexto largo, visión y generación de video.',
+    freeTier: 'Tokens de regalo gratuitos para desarrolladores al crear cuenta.',
+    consoleUrl: 'https://open.bigmodel.cn/usercenter/apikeys',
+    docsUrl: 'https://open.bigmodel.cn/dev/api'
+  },
+  {
+    id: 'minimax-hailuo',
+    name: 'MiniMax AI (Hailuo / Abab)',
+    category: 'ai-advanced-hidden',
+    icon: 'Sparkles',
+    badge: 'Video & Audio Top',
+    defaultVarName: 'MINIMAX_API_KEY',
+    description: 'Los creadores del generador de video Hailuo AI y modelos de voz hiperrealistas multilingües.',
+    useCase: 'Generación de video fotorrealista y clonación de audio.',
+    freeTier: 'Crédito gratuito inicial de desarrollo.',
+    consoleUrl: 'https://platform.minimaxi.com',
+    docsUrl: 'https://platform.minimaxi.com/document/guides'
+  },
+  {
+    id: 'yi-01-ai',
+    name: '01.AI (Yi-Lightning & Yi-Large)',
+    category: 'ai-advanced-hidden',
+    icon: 'Zap',
+    badge: 'Kai-Fu Lee AI',
+    defaultVarName: 'YI_API_KEY',
+    description: 'Modelos Yi con rankings de primer nivel en benchmarks globales de matemáticas y código.',
+    useCase: 'Inferencia rápida y económica con alta fidelidad lógica.',
+    freeTier: 'Créditos iniciales gratuitos de bienvenida.',
+    consoleUrl: 'https://platform.01.ai',
+    docsUrl: 'https://docs.01.ai'
+  },
+  {
+    id: 'modal-labs-serverless',
+    name: 'Modal Labs (GPU Cloud Functions)',
+    category: 'ai-advanced-hidden',
+    icon: 'Server',
+    badge: '$30/mes Cómputo Gratis',
+    defaultVarName: 'MODAL_TOKEN_ID',
+    description: 'Contenedores serverless de Python en GPUs H100 y A100 que inician en milisegundos.',
+    useCase: 'Correr pipelines pesados de IA, fine-tuning y modelos personalizados.',
+    freeTier: '$30.00 USD de cómputo gratuito todos los meses de por vida.',
+    consoleUrl: 'https://modal.com/settings',
+    docsUrl: 'https://modal.com/docs'
+  },
+  {
+    id: 'runpod-serverless',
+    name: 'RunPod Serverless AI Endpoints',
+    category: 'ai-advanced-hidden',
+    icon: 'Cpu',
+    badge: 'GPU Serverless',
+    defaultVarName: 'RUNPOD_API_KEY',
+    description: 'Ejecución serverless de vLLM, Whisper y Stable Diffusion con pago por milisegundo de GPU.',
+    useCase: 'Escalar modelos de IA a millones de usuarios sin servidores fijos.',
+    freeTier: 'Crédito inicial para nuevos desarrolladores.',
+    consoleUrl: 'https://www.runpod.io/console/serverless',
+    docsUrl: 'https://docs.runpod.io'
+  },
+  {
+    id: 'meshy-3d-ai',
+    name: 'Meshy.ai (Text/Image to 3D)',
+    category: 'ai-advanced-hidden',
+    icon: 'Box',
+    badge: 'Generador 3D',
+    defaultVarName: 'MESHY_API_KEY',
+    description: 'Generación de modelos 3D textured (GLB, FBX, OBJ) a partir de texto o imágenes 2D.',
+    useCase: 'Creación de assets para videojuegos, realidad virtual e impresión 3D.',
+    freeTier: '200 créditos gratuitos al mes de por vida.',
+    consoleUrl: 'https://www.meshy.ai/dashboard/api',
+    docsUrl: 'https://docs.meshy.ai'
+  },
+  {
+    id: 'tripo-3d-ai',
+    name: 'Tripo3D API',
+    category: 'ai-advanced-hidden',
+    icon: 'Package',
+    badge: '3D Mesh AI',
+    defaultVarName: 'TRIPO_API_KEY',
+    description: 'Generación de mallas poligonales 3D con topología limpia en menos de 10 segundos.',
+    useCase: 'Prototipado rápido de objetos 3D y metaverso.',
+    freeTier: 'Créditos iniciales de desarrollo.',
+    consoleUrl: 'https://platform.tripo3d.ai',
+    docsUrl: 'https://platform.tripo3d.ai/docs'
+  },
+  {
+    id: 'mem0-ai-memory',
+    name: 'Mem0 (The Memory Layer for AI)',
+    category: 'ai-advanced-hidden',
+    icon: 'Brain',
+    badge: 'Memoria para LLMs',
+    defaultVarName: 'MEM0_API_KEY',
+    description: 'Capa de memoria a largo plazo adaptativa que recuerda preferencias del usuario entre sesiones.',
+    useCase: 'Hacer que tus chatbots recuerden datos de usuarios para siempre sin inflar el contexto.',
+    freeTier: 'Plan comunitario gratuito para desarrolladores.',
+    consoleUrl: 'https://app.mem0.ai/dashboard/api-keys',
+    docsUrl: 'https://docs.mem0.ai'
+  },
+  {
+    id: 'langfuse-observability',
+    name: 'Langfuse (LLM Observability & Tracing)',
+    category: 'ai-advanced-hidden',
+    icon: 'Activity',
+    badge: '50k Observaciones Free',
+    defaultVarName: 'LANGFUSE_SECRET_KEY',
+    description: 'Trazabilidad de ejecuciones de LLMs, análisis de costos, latencias y evaluación de calidad de prompts.',
+    useCase: 'Auditar por qué un agente LLM tomó una decisión y cuánto dinero costó cada paso.',
+    freeTier: '50,000 observaciones gratuitas al mes de por vida.',
+    consoleUrl: 'https://cloud.langfuse.com',
+    docsUrl: 'https://langfuse.com/docs'
+  },
+  {
+    id: 'helicone-ai-proxy',
+    name: 'Helicone AI (LLM Gateway & Cache)',
+    category: 'ai-advanced-hidden',
+    icon: 'Shield',
+    badge: '100k Requests Free',
+    defaultVarName: 'HELICONE_API_KEY',
+    description: 'Pasarela proxy que añade caché semántico, reintentos y rate limiting a cualquier LLM en 1 línea de código.',
+    useCase: 'Ahorrar hasta un 80% en costos de OpenAI/Gemini cacheando respuestas idénticas.',
+    freeTier: '100,000 peticiones gratuitas al mes.',
+    consoleUrl: 'https://www.helicone.ai',
+    docsUrl: 'https://docs.helicone.ai'
+  },
+
+  // =========================================================================
+  // 3. 🎙️ VOZ EN TIEMPO REAL & AGENTES INTERACTIVOS (8)
+  // =========================================================================
+  {
+    id: 'livekit-cloud',
+    name: 'LiveKit Cloud (WebRTC Voice Agents)',
+    category: 'ai-voice-realtime',
+    icon: 'Radio',
+    badge: 'Sub-100ms WebRTC',
+    defaultVarName: 'LIVEKIT_API_KEY',
+    description: 'Infraestructura WebRTC de ultra baja latencia para agentes de voz y video en tiempo real.',
+    useCase: 'Asistentes conversacionales de voz fluida como el modo de voz avanzado de ChatGPT.',
+    freeTier: '50 GB de ancho de banda y conexiones concurrentes gratis al mes.',
+    consoleUrl: 'https://cloud.livekit.io',
+    docsUrl: 'https://docs.livekit.io'
+  },
+  {
+    id: 'vapi-voice-ai',
+    name: 'Vapi.ai (Voice AI for Developers)',
+    category: 'ai-voice-realtime',
+    icon: 'Phone',
+    badge: '$10 Crédito Free',
+    defaultVarName: 'VAPI_PRIVATE_API_KEY',
+    description: 'Orquestador completo para agentes de voz: combina STT (Deepgram), LLM (Groq) y TTS (ElevenLabs/Cartesia).',
+    useCase: 'Crear recepcionistas telefónicos y agentes de atención al cliente automatizados.',
+    freeTier: '$10.00 USD de crédito gratuito inicial para llamadas y pruebas.',
+    consoleUrl: 'https://dashboard.vapi.ai',
+    docsUrl: 'https://docs.vapi.ai'
+  },
+  {
+    id: 'daily-co-webrtc',
+    name: 'Daily.co (Video & Audio WebRTC)',
+    category: 'ai-voice-realtime',
+    icon: 'Video',
+    badge: '10k Minutos Free',
+    defaultVarName: 'DAILY_API_KEY',
+    description: 'APIs de video y audio en tiempo real para aplicaciones interactivas y agentes de IA.',
+    useCase: 'Salas de videollamada donde un agente de IA interactúa como un participante más.',
+    freeTier: '10,000 minutos de video gratuitos cada mes.',
+    consoleUrl: 'https://dashboard.daily.co/developers',
+    docsUrl: 'https://docs.daily.co'
+  },
+  {
+    id: 'cartesia-sonic-voice',
+    name: 'Cartesia (Sonic Fast Voice TTS)',
+    category: 'ai-voice-realtime',
+    icon: 'Zap',
+    badge: 'Latencia Ultra Baja',
+    defaultVarName: 'CARTESIA_API_KEY',
+    description: 'Modelo de generación de voz Sonic con latencia récord de 90ms para streaming interactivo.',
+    useCase: 'Respuestas de voz inmediatas sin pausas incómodas.',
+    freeTier: 'Créditos de desarrollo gratuitos al crear cuenta.',
+    consoleUrl: 'https://play.cartesia.ai',
+    docsUrl: 'https://docs.cartesia.ai'
+  },
+  {
+    id: 'deepgram-nova-2',
+    name: 'Deepgram (Nova-2 Speech-to-Text & Aura)',
+    category: 'ai-voice-realtime',
+    icon: 'Mic',
+    badge: '$200 Free Trial',
+    defaultVarName: 'DEEPGRAM_API_KEY',
+    description: 'Transcripción de voz ultra precisa en tiempo real con detección de fin de turno.',
+    useCase: 'Escuchar y transcribir lo que dice el usuario mientras habla por el micrófono.',
+    freeTier: '$200.00 USD de crédito gratuito al crear cuenta sin tarjeta.',
+    consoleUrl: 'https://console.deepgram.com',
+    docsUrl: 'https://developers.deepgram.com'
+  },
+  {
+    id: 'elevenlabs-speech',
+    name: 'ElevenLabs (Multilingual Voice & Sound FX)',
+    category: 'ai-voice-realtime',
+    icon: 'Volume2',
+    badge: '10k Chars/mes',
+    defaultVarName: 'ELEVENLABS_API_KEY',
+    description: 'La síntesis de voz humana con mejor entonación, doblaje y efectos de sonido con IA.',
+    useCase: 'Generar narraciones y doblaje automático de videos.',
+    freeTier: '10,000 caracteres de audio gratuitos al mes.',
+    consoleUrl: 'https://elevenlabs.io/app/speech-synthesis',
+    docsUrl: 'https://elevenlabs.io/docs'
+  },
+  {
+    id: 'groq-whisper-lpu',
+    name: 'Groq Whisper Large v3',
+    category: 'ai-voice-realtime',
+    icon: 'Zap',
+    badge: '200x Tiempo Real',
+    defaultVarName: 'GROQ_API_KEY',
+    description: 'Whisper Large v3 corriendo en procesadores LPU a más de 200x velocidad.',
+    useCase: 'Transcribir audios de varios minutos en menos de 1 segundo.',
+    freeTier: '7,200 segundos de audio gratuitos por día.',
+    consoleUrl: 'https://console.groq.com/keys',
+    docsUrl: 'https://console.groq.com/docs/speech-text'
+  },
+  {
+    id: 'assemblyai-core',
+    name: 'AssemblyAI (Speech AI & Diarization)',
+    category: 'ai-voice-realtime',
+    icon: 'AudioWaveform',
+    badge: '100 Horas Free',
+    defaultVarName: 'ASSEMBLYAI_API_KEY',
+    description: 'Modelos de comprensión de audio, detección de temas, sentimiento y filtrado de insultos.',
+    useCase: 'Auditoría automática de llamadas de servicio al cliente.',
+    freeTier: '100 horas de transcripción de audio gratis.',
+    consoleUrl: 'https://www.assemblyai.com/app/account',
+    docsUrl: 'https://www.assemblyai.com/docs'
+  },
+
+  // =========================================================================
+  // 4. 🧠 MODELOS DE LENGUAJE & LLMS CLOUD (15)
+  // =========================================================================
+  {
+    id: 'google-gemini-core',
     name: 'Google Gemini (AI Studio)',
     category: 'ai-llm',
     icon: 'Sparkles',
-    badge: '100% Gratis',
+    badge: '100% Gratis Diario',
     defaultVarName: 'GEMINI_API_KEY',
-    description: 'Modelos multimodales de última generación (Gemini 1.5 Flash, 1.5 Pro y 2.0 Flash) con ventana de 2M tokens.',
+    description: 'Modelos multimodales líderes (Gemini 1.5 Flash, 1.5 Pro y 2.0 Flash) con contexto de 2M tokens.',
     useCase: 'Chatbots, análisis de documentos PDF gigantescos, procesamiento de video y generación de código.',
     freeTier: '15 RPM / 1,000,000 TPM diarios gratuitos renovables para siempre sin tarjeta.',
     consoleUrl: 'https://aistudio.google.com/app/apikey',
-    docsUrl: 'https://ai.google.dev/gemini-api/docs',
-    pythonSnippet: `from google import genai\nclient = genai.Client(api_key=os.environ["GEMINI_API_KEY"])\nresponse = client.models.generate_content(model="gemini-1.5-flash", contents="Hola")`,
-    nodeSnippet: `import { GoogleGenAI } from "@google/genai";\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });`
+    docsUrl: 'https://ai.google.dev/gemini-api/docs'
   },
   {
-    id: 'groq-cloud',
+    id: 'groq-cloud-core',
     name: 'Groq Cloud (LPU Inference)',
     category: 'ai-llm',
     icon: 'Zap',
-    badge: 'Ultra Rápido',
+    badge: '500+ tokens/s',
     defaultVarName: 'GROQ_API_KEY',
-    description: 'Inferencia ultra veloz (500+ tokens/s) para Llama 3.3 70B, Mixtral 8x7B y Gemma 2.',
-    useCase: 'Aplicaciones que requieren respuestas instantáneas en tiempo real, agentes autónomos y asistentes de voz.',
+    description: 'Inferencia ultra veloz para Llama 3.3 70B, Mixtral 8x7B y Gemma 2.',
+    useCase: 'Aplicaciones que requieren respuestas instantáneas en tiempo real.',
     freeTier: 'Free tier generoso con hasta 30 peticiones por minuto sin tarjeta requerida.',
     consoleUrl: 'https://console.groq.com/keys',
-    docsUrl: 'https://console.groq.com/docs/quickstart',
-    pythonSnippet: `from groq import Groq\nclient = Groq(api_key=os.environ["GROQ_API_KEY"])\nchat = client.chat.completions.create(messages=[{"role":"user","content":"Hola"}], model="llama-3.3-70b-versatile")`,
-    nodeSnippet: `import Groq from "groq-sdk";\nconst groq = new Groq({ apiKey: process.env.GROQ_API_KEY });`
+    docsUrl: 'https://console.groq.com/docs/quickstart'
   },
   {
-    id: 'cerebras-cloud',
-    name: 'Cerebras Cloud',
+    id: 'cerebras-core',
+    name: 'Cerebras Cloud (CS-3)',
     category: 'ai-llm',
     icon: 'Cpu',
     badge: '1800 tokens/s',
@@ -66,8 +545,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://inference-docs.cerebras.ai'
   },
   {
-    id: 'sambanova-cloud',
-    name: 'SambaNova Cloud',
+    id: 'sambanova-core',
+    name: 'SambaNova Cloud (SN40L)',
     category: 'ai-llm',
     icon: 'Layers',
     badge: 'Llama 405B',
@@ -79,11 +558,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.sambanova.ai'
   },
   {
-    id: 'qwen-dashscope',
+    id: 'qwen-dashscope-core',
     name: 'Qwen / Alibaba ModelStudio',
     category: 'ai-llm',
     icon: 'Bot',
-    badge: 'Top Open Source',
+    badge: 'Qwen 2.5 72B',
     defaultVarName: 'DASHSCOPE_API_KEY',
     description: 'Modelos líderes Qwen 2.5 (72B, Coder para programación, Math y Vision).',
     useCase: 'Programación asistida, traducción multilingüe y resolución de lógica compleja.',
@@ -92,11 +571,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://www.alibabacloud.com/help/en/model-studio'
   },
   {
-    id: 'huggingface-inference',
+    id: 'huggingface-core',
     name: 'Hugging Face (Serverless Inference)',
     category: 'ai-llm',
     icon: 'Bot',
-    badge: 'Comunidad Global',
+    badge: 'Thousands of Models',
     defaultVarName: 'HF_TOKEN',
     description: 'Inferencia serverless para decenas de miles de modelos open source.',
     useCase: 'Probar cualquier modelo de Hugging Face sin configurar infraestructura.',
@@ -105,11 +584,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://huggingface.co/docs/api-inference'
   },
   {
-    id: 'openrouter-cloud',
-    name: 'OpenRouter (Modelos :free)',
+    id: 'openrouter-core',
+    name: 'OpenRouter (Modelos Cloud :free)',
     category: 'ai-llm',
     icon: 'Globe',
-    badge: '50+ Modelos Free',
+    badge: '50+ Free Models',
     defaultVarName: 'OPENROUTER_API_KEY',
     description: 'API unificada compatible con OpenAI para acceder a más de 50 modelos gratuitos en la nube.',
     useCase: 'Tener una sola clave para alternar entre DeepSeek R1, Llama 3.3, Gemini y Gemma.',
@@ -118,11 +597,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://openrouter.ai/docs'
   },
   {
-    id: 'mistral-plateforme',
+    id: 'mistral-core',
     name: 'Mistral AI (Codestral & Mistral 7B)',
     category: 'ai-llm',
     icon: 'Wind',
-    badge: 'Especialista Código',
+    badge: 'Codestral Free',
     defaultVarName: 'MISTRAL_API_KEY',
     description: 'Modelos de la empresa europea de IA: Codestral, Mistral Nemo, Ministral y Mistral Large.',
     useCase: 'Autocompletado de código, refactorización y agentes de software.',
@@ -131,11 +610,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.mistral.ai'
   },
   {
-    id: 'cohere-platform',
+    id: 'cohere-core',
     name: 'Cohere (Command R+ & Rerank)',
     category: 'ai-llm',
     icon: 'Network',
-    badge: 'RAG Líder',
+    badge: 'Trial Key Free',
     defaultVarName: 'COHERE_API_KEY',
     description: 'Command R+, Embeddings multilingües y el mejor motor de Reranking para búsqueda semántica.',
     useCase: 'Pipelines RAG empresariales y búsqueda sobre bases de conocimiento.',
@@ -144,11 +623,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.cohere.com'
   },
   {
-    id: 'deepseek-platform',
+    id: 'deepseek-core',
     name: 'DeepSeek AI (V3 & R1)',
     category: 'ai-llm',
     icon: 'Cpu',
-    badge: 'Razonamiento Top',
+    badge: 'DeepSeek R1',
     defaultVarName: 'DEEPSEEK_API_KEY',
     description: 'DeepSeek V3 y DeepSeek R1 (modelo de razonamiento paso a paso estilo OpenAI o1).',
     useCase: 'Resolución de problemas matemáticos, lógica profunda y arquitectura de software.',
@@ -157,7 +636,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://api-docs.deepseek.com'
   },
   {
-    id: 'kimi-moonshot-ai',
+    id: 'kimi-moonshot-core',
     name: 'Moonshot AI (Kimi)',
     category: 'ai-llm',
     icon: 'Moon',
@@ -170,11 +649,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://platform.moonshot.cn/docs'
   },
   {
-    id: 'cloudflare-workers-ai-llm',
+    id: 'cloudflare-workers-ai-core',
     name: 'Cloudflare Workers AI',
     category: 'ai-llm',
     icon: 'Cloud',
-    badge: 'Serverless Edge',
+    badge: '10k Neuronas/día',
     defaultVarName: 'CLOUDFLARE_API_TOKEN',
     description: 'Inferencia de Llama 3, Mistral y DeepSeek desplegada en más de 300 ciudades del mundo.',
     useCase: 'Microservicios con latencia ultra baja en el edge.',
@@ -183,11 +662,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://developers.cloudflare.com/workers-ai'
   },
   {
-    id: 'together-ai-cloud',
+    id: 'together-ai-core',
     name: 'Together AI',
     category: 'ai-llm',
     icon: 'Share2',
-    badge: '$5 Gratis',
+    badge: '$5 Free Credit',
     defaultVarName: 'TOGETHER_API_KEY',
     description: 'Inferencia cloud de más de 100 modelos open source optimizados.',
     useCase: 'Entornos de producción de modelos abiertos y fine-tuning.',
@@ -196,11 +675,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.together.ai'
   },
   {
-    id: 'fireworks-ai-cloud',
+    id: 'fireworks-core',
     name: 'Fireworks AI',
     category: 'ai-llm',
     icon: 'Flame',
-    badge: 'Aceleración GPU',
+    badge: '$1 Free Trial',
     defaultVarName: 'FIREWORKS_API_KEY',
     description: 'Inferencia rápida con formato function calling JSON optimizado.',
     useCase: 'Agentes autónomos y flujos de estructuración de datos.',
@@ -209,63 +688,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.fireworks.ai'
   },
   {
-    id: 'ai21-labs-jamba',
-    name: 'AI21 Labs (Jamba)',
-    category: 'ai-llm',
-    icon: 'Brain',
-    badge: 'Mamba Híbrido',
-    defaultVarName: 'AI21_API_KEY',
-    description: 'Arquitectura híbrida Mamba + Transformer para alta eficiencia.',
-    useCase: 'Procesamiento de contexto largo a costo ultra reducido.',
-    freeTier: 'Free trial credits para desarrolladores.',
-    consoleUrl: 'https://studio.ai21.com/account/api-key',
-    docsUrl: 'https://docs.ai21.com'
-  },
-  {
-    id: 'hyperbolic-cloud',
-    name: 'Hyperbolic AI',
-    category: 'ai-llm',
-    icon: 'Server',
-    badge: 'GPU Network',
-    defaultVarName: 'HYPERBOLIC_API_KEY',
-    description: 'Inferencia en red de cómputo descentralizada para Llama 3 y Qwen.',
-    useCase: 'Reducción de costos en inferencia masiva.',
-    freeTier: 'Créditos iniciales gratuitos.',
-    consoleUrl: 'https://app.hyperbolic.xyz/settings',
-    docsUrl: 'https://docs.hyperbolic.xyz'
-  },
-  {
-    id: 'novita-ai-cloud',
-    name: 'Novita AI',
-    category: 'ai-llm',
-    icon: 'Sparkle',
-    badge: 'Serverless LLM',
-    defaultVarName: 'NOVITA_API_KEY',
-    description: 'Acceso serverless a LLMs, SDXL y Flux.',
-    useCase: 'APIs combinadas de texto e imagen.',
-    freeTier: 'Free trial credit para desarrollo.',
-    consoleUrl: 'https://novita.ai/settings/key-management',
-    docsUrl: 'https://novita.ai/docs'
-  },
-  {
-    id: 'lepton-ai',
-    name: 'Lepton AI',
-    category: 'ai-llm',
-    icon: 'Cpu',
-    badge: 'Cloud LLMs',
-    defaultVarName: 'LEPTON_API_TOKEN',
-    description: 'Plataforma para correr modelos de IA con APIs estandarizadas tipo OpenAI.',
-    useCase: 'Despliegue rápido de modelos open source.',
-    freeTier: 'Créditos de prueba para desarrolladores.',
-    consoleUrl: 'https://dashboard.lepton.ai',
-    docsUrl: 'https://www.lepton.ai/docs'
-  },
-  {
-    id: 'perplexity-ai',
-    name: 'Perplexity AI (Sonar API)',
+    id: 'perplexity-core',
+    name: 'Perplexity AI (Sonar Search)',
     category: 'ai-llm',
     icon: 'Search',
-    badge: 'Search LLM',
+    badge: 'Sonar Real-time',
     defaultVarName: 'PERPLEXITY_API_KEY',
     description: 'Modelos Sonar con búsqueda y citación web en tiempo real.',
     useCase: 'Chatbots que necesitan datos del día actual y fuentes verificables.',
@@ -273,159 +700,12 @@ export const API_DICTIONARY = [
     consoleUrl: 'https://www.perplexity.ai/settings/api',
     docsUrl: 'https://docs.perplexity.ai'
   },
-  {
-    id: 'baseten-ai',
-    name: 'Baseten',
-    category: 'ai-llm',
-    icon: 'Server',
-    badge: 'Model Serving',
-    defaultVarName: 'BASETEN_API_KEY',
-    description: 'Infraestructura de producción para servir modelos LLM y difusión.',
-    useCase: 'Despliegue de modelos propietarios y endpoints personalizados.',
-    freeTier: 'Free trial credits para nuevos desarrolladores.',
-    consoleUrl: 'https://app.baseten.co/settings/api_keys',
-    docsUrl: 'https://docs.baseten.co'
-  },
 
-  // ==========================================
-  // 2. VOZ, AUDIO & SPEECH AI (10)
-  // ==========================================
+  // =========================================================================
+  // 5. 🔍 SCRAPING, CRAWLERS & RAG PARA AGENTES (10)
+  // =========================================================================
   {
-    id: 'deepgram-voice',
-    name: 'Deepgram (Speech-to-Text & TTS)',
-    category: 'ai-voice',
-    icon: 'Mic',
-    badge: '$200 Gratis',
-    defaultVarName: 'DEEPGRAM_API_KEY',
-    description: 'Transcripción de audio en tiempo real Nova-2 y síntesis de voz humana Aura.',
-    useCase: 'Agentes de voz telefónicos, subtitulado en vivo y comandos de voz.',
-    freeTier: '$200 USD de crédito gratuito sin tarjeta al crear tu cuenta.',
-    consoleUrl: 'https://console.deepgram.com',
-    docsUrl: 'https://developers.deepgram.com'
-  },
-  {
-    id: 'assemblyai-voice',
-    name: 'AssemblyAI (Audio Intelligence)',
-    category: 'ai-voice',
-    icon: 'AudioWaveform',
-    badge: '100 Horas Free',
-    defaultVarName: 'ASSEMBLYAI_API_KEY',
-    description: 'Speech-to-Text con detección de hablantes, análisis de sentimiento y resúmenes.',
-    useCase: 'Análisis de llamadas de ventas, transcripción de podcasts y reuniones.',
-    freeTier: '100 horas de transcripción gratuitas.',
-    consoleUrl: 'https://www.assemblyai.com/app/account',
-    docsUrl: 'https://www.assemblyai.com/docs'
-  },
-  {
-    id: 'elevenlabs-voice',
-    name: 'ElevenLabs (Hiperrealismo & Clonación)',
-    category: 'ai-voice',
-    icon: 'Volume2',
-    badge: '10k Caracteres/mes',
-    defaultVarName: 'ELEVENLABS_API_KEY',
-    description: 'La síntesis de voz humana con más matices emocionales y clonación de voz.',
-    useCase: 'Audiolibros, videos automatizados, voces para videojuegos y doblaje.',
-    freeTier: '10,000 caracteres de audio gratuitos al mes de por vida.',
-    consoleUrl: 'https://elevenlabs.io/app/speech-synthesis',
-    docsUrl: 'https://elevenlabs.io/docs'
-  },
-  {
-    id: 'groq-whisper-voice',
-    name: 'Groq Whisper Cloud',
-    category: 'ai-voice',
-    icon: 'Zap',
-    badge: '200x Velocidad',
-    defaultVarName: 'GROQ_API_KEY',
-    description: 'Whisper Large v3 procesando audio a 200x tiempo real en chips LPU.',
-    useCase: 'Transcribir audios de WhatsApp o llamadas en fracciones de segundo.',
-    freeTier: '7,200 segundos de audio gratuitos por día.',
-    consoleUrl: 'https://console.groq.com/keys',
-    docsUrl: 'https://console.groq.com/docs/speech-text'
-  },
-  {
-    id: 'playht-voice',
-    name: 'PlayHT (AI Voice Generator)',
-    category: 'ai-voice',
-    icon: 'VolumeX',
-    badge: 'Voz Streaming',
-    defaultVarName: 'PLAYHT_API_KEY',
-    description: 'Generación de voz en streaming ultra baja latencia.',
-    useCase: 'Bots conversacionales en tiempo real.',
-    freeTier: '12,500 caracteres gratuitos al registrarte.',
-    consoleUrl: 'https://play.ht/app/api-access',
-    docsUrl: 'https://docs.play.ht'
-  },
-  {
-    id: 'speechify-api',
-    name: 'Speechify API',
-    category: 'ai-voice',
-    icon: 'BookOpen',
-    badge: 'Text-to-Speech',
-    defaultVarName: 'SPEECHIFY_API_KEY',
-    description: 'Lectura fluida y natural de artículos y documentos.',
-    useCase: 'Modo lectura de voz en aplicaciones web y móviles.',
-    freeTier: 'Plan de prueba para desarrolladores.',
-    consoleUrl: 'https://speechify.com/api',
-    docsUrl: 'https://docs.speechify.com'
-  },
-  {
-    id: 'gladia-speech',
-    name: 'Gladia (Real-time Speech-to-Text)',
-    category: 'ai-voice',
-    icon: 'Mic2',
-    badge: '10 Horas/mes',
-    defaultVarName: 'GLADIA_API_KEY',
-    description: 'Motor de transcripción multilingüe en tiempo real para llamadas y streaming.',
-    useCase: 'Asistentes de reuniones virtuales y subtítulos en vivo.',
-    freeTier: '10 horas de audio gratis al mes.',
-    consoleUrl: 'https://app.gladia.io',
-    docsUrl: 'https://docs.gladia.io'
-  },
-  {
-    id: 'rev-ai-voice',
-    name: 'Rev.ai (Speech-to-Text APIs)',
-    category: 'ai-voice',
-    icon: 'Headphones',
-    badge: '5 Horas Free',
-    defaultVarName: 'REVAI_API_KEY',
-    description: 'Transcripción precisa con vocabulario personalizado y timestamps.',
-    useCase: 'Indexación de audio para búsqueda de palabras clave.',
-    freeTier: '5 horas de audio gratis para probar.',
-    consoleUrl: 'https://www.rev.ai/access_token',
-    docsUrl: 'https://docs.rev.ai'
-  },
-  {
-    id: 'cartesia-ai',
-    name: 'Cartesia (Sonic Real-time Voice)',
-    category: 'ai-voice',
-    icon: 'Radio',
-    badge: 'Sonic TTS',
-    defaultVarName: 'CARTESIA_API_KEY',
-    description: 'Modelo de voz Sonic con latencia menor a 100ms.',
-    useCase: 'Agentes conversacionales interactivos por teléfono o web.',
-    freeTier: 'Créditos iniciales de desarrollo.',
-    consoleUrl: 'https://play.cartesia.ai',
-    docsUrl: 'https://docs.cartesia.ai'
-  },
-  {
-    id: 'resemble-ai',
-    name: 'Resemble AI (Voice Clone & Watermark)',
-    category: 'ai-voice',
-    icon: 'Shield',
-    badge: 'Voice Cloning',
-    defaultVarName: 'RESEMBLE_API_KEY',
-    description: 'Clonación de voz con marca de agua neuronal y detección de deepfakes.',
-    useCase: 'Seguridad en audio y doblajes sintéticos.',
-    freeTier: 'Trial credit para desarrolladores.',
-    consoleUrl: 'https://app.resemble.ai/api',
-    docsUrl: 'https://docs.resemble.ai'
-  },
-
-  // ==========================================
-  // 3. SCRAPING, BÚSQUEDA & RAG PARA AGENTES (10)
-  // ==========================================
-  {
-    id: 'tavily-search',
+    id: 'tavily-core',
     name: 'Tavily AI (Search for LLMs)',
     category: 'ai-search-scraping',
     icon: 'Search',
@@ -438,8 +718,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.tavily.com'
   },
   {
-    id: 'jina-reader-api',
-    name: 'Jina AI (Reader & Embeddings)',
+    id: 'jina-reader-core',
+    name: 'Jina AI (Reader & Search)',
     category: 'ai-search-scraping',
     icon: 'FileText',
     badge: '1M Tokens Free',
@@ -451,20 +731,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://jina.ai/reader'
   },
   {
-    id: 'exa-neural-search',
-    name: 'Exa AI (Semantic Search)',
-    category: 'ai-search-scraping',
-    icon: 'Globe2',
-    badge: '1k Queries',
-    defaultVarName: 'EXA_API_KEY',
-    description: 'Buscador semántico que encuentra páginas web por similitud conceptual.',
-    useCase: 'Encontrar competidores, papers científicos o empresas similares.',
-    freeTier: '1,000 peticiones gratuitas.',
-    consoleUrl: 'https://dashboard.exa.ai/api-keys',
-    docsUrl: 'https://docs.exa.ai'
-  },
-  {
-    id: 'firecrawl-scraping',
+    id: 'firecrawl-core',
     name: 'Firecrawl (Web to Markdown)',
     category: 'ai-search-scraping',
     icon: 'Flame',
@@ -477,34 +744,47 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.firecrawl.dev'
   },
   {
-    id: 'scraperapi-cloud',
-    name: 'ScraperAPI',
+    id: 'exa-core',
+    name: 'Exa AI (Semantic Search)',
+    category: 'ai-search-scraping',
+    icon: 'Globe2',
+    badge: '1k Queries Free',
+    defaultVarName: 'EXA_API_KEY',
+    description: 'Buscador semántico que encuentra páginas web por similitud conceptual.',
+    useCase: 'Encontrar competidores, papers científicos o empresas similares.',
+    freeTier: '1,000 peticiones gratuitas.',
+    consoleUrl: 'https://dashboard.exa.ai/api-keys',
+    docsUrl: 'https://docs.exa.ai'
+  },
+  {
+    id: 'apify-scrapers',
+    name: 'Apify (Web Scrapers & Actors)',
     category: 'ai-search-scraping',
     icon: 'Code',
-    badge: '5k Requests',
-    defaultVarName: 'SCRAPERAPI_KEY',
-    description: 'Proxy rotativo con resolución de captchas y renderizado JavaScript.',
-    useCase: 'Scraping de sitios protegidos por Cloudflare o con contenido dinámico.',
-    freeTier: '5,000 peticiones gratuitas de prueba.',
-    consoleUrl: 'https://dashboard.scraperapi.com',
-    docsUrl: 'https://docs.scraperapi.com'
+    badge: '$5/mes Cómputo Free',
+    defaultVarName: 'APIFY_API_TOKEN',
+    description: 'Ecosistema de más de 2,000 scrapers prefabricados para Instagram, Google Maps, Twitter, Amazon y LinkedIn.',
+    useCase: 'Extraer datos estructurados de cualquier red social o tienda sin programar scrapers desde cero.',
+    freeTier: '$5.00 USD de crédito mensual recurrente gratuito de por vida.',
+    consoleUrl: 'https://console.apify.com/account/integrations',
+    docsUrl: 'https://docs.apify.com'
   },
   {
-    id: 'scrapingbee-api',
-    name: 'ScrapingBee',
+    id: 'crawl4ai-engine',
+    name: 'Crawl4AI (Open Source LLM Crawler)',
     category: 'ai-search-scraping',
-    icon: 'Eye',
-    badge: '1k API Calls',
-    defaultVarName: 'SCRAPINGBEE_API_KEY',
-    description: 'Navegador headless en la nube para extraer datos y hacer screenshots.',
-    useCase: 'Generación de capturas de pantalla de webs y scraping SPA.',
-    freeTier: '1,000 llamadas de API gratuitas.',
-    consoleUrl: 'https://app.scrapingbee.com/api-keys',
-    docsUrl: 'https://www.scrapingbee.com/documentation'
+    icon: 'Activity',
+    badge: 'Open Source',
+    defaultVarName: 'CRAWL4AI_API_ENDPOINT',
+    description: 'Crawler web de código abierto ultrarrápido diseñado específicamente para alimentar LLMs con Markdown limpio.',
+    useCase: 'Extracción sin bloqueo de páginas complejas con JavaScript y Shadow DOM.',
+    freeTier: '100% Gratis de código abierto.',
+    consoleUrl: 'https://crawl4ai.com',
+    docsUrl: 'https://crawl4ai.com/mkdocs/'
   },
   {
-    id: 'serpapi-search',
-    name: 'SerpApi (Google Search API)',
+    id: 'serpapi-core',
+    name: 'SerpApi (Google Search in JSON)',
     category: 'ai-search-scraping',
     icon: 'SearchCheck',
     badge: '100 Searches/mes',
@@ -516,7 +796,20 @@ export const API_DICTIONARY = [
     docsUrl: 'https://serpapi.com/docs'
   },
   {
-    id: 'brave-search-api',
+    id: 'scraperapi-core',
+    name: 'ScraperAPI',
+    category: 'ai-search-scraping',
+    icon: 'Code',
+    badge: '5k Requests Free',
+    defaultVarName: 'SCRAPERAPI_KEY',
+    description: 'Proxy rotativo con resolución de captchas y renderizado JavaScript.',
+    useCase: 'Scraping de sitios protegidos por Cloudflare o con contenido dinámico.',
+    freeTier: '5,000 peticiones gratuitas de prueba.',
+    consoleUrl: 'https://dashboard.scraperapi.com',
+    docsUrl: 'https://docs.scraperapi.com'
+  },
+  {
+    id: 'brave-search-core',
     name: 'Brave Search API',
     category: 'ai-search-scraping',
     icon: 'Shield',
@@ -529,11 +822,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://api.search.brave.com/app/documentation'
   },
   {
-    id: 'spider-cloud-crawler',
-    name: 'Spider Cloud (Fast Crawler)',
+    id: 'spider-crawler-core',
+    name: 'Spider Cloud (Fast Rust Crawler)',
     category: 'ai-search-scraping',
     icon: 'Activity',
-    badge: 'Crawling Rápido',
+    badge: 'Rust Speed',
     defaultVarName: 'SPIDER_API_KEY',
     description: 'El crawler web más rápido escrito en Rust para pipelines de IA.',
     useCase: 'Extracción a gran escala en minutos.',
@@ -541,27 +834,27 @@ export const API_DICTIONARY = [
     consoleUrl: 'https://spider.cloud',
     docsUrl: 'https://spider.cloud/docs'
   },
-  {
-    id: 'brightdata-scraping',
-    name: 'Bright Data (Web Scraper & Proxies)',
-    category: 'ai-search-scraping',
-    icon: 'Globe',
-    badge: 'Enterprise Proxy',
-    defaultVarName: 'BRIGHTDATA_API_KEY',
-    description: 'Red de proxies residenciales y datasets de comercio electrónico listos para usar.',
-    useCase: 'Inteligencia de mercado y recolección de datos globales.',
-    freeTier: 'Trial credit de bienvenida.',
-    consoleUrl: 'https://brightdata.com',
-    docsUrl: 'https://docs.brightdata.com'
-  },
 
-  // ==========================================
-  // 4. BASES DE DATOS & VECTOR DBS (12)
-  // ==========================================
+  // =========================================================================
+  // 6. 🗄️ BASES DE DATOS, VECTOR DBS & GRAFOS DE CONOCIMIENTO (12)
+  // =========================================================================
   {
-    id: 'supabase-db',
+    id: 'neo4j-auradb-graph',
+    name: 'Neo4j AuraDB (Graph Database Cloud)',
+    category: 'database-vector-graph',
+    icon: 'Network',
+    badge: '1 Instancia Free',
+    defaultVarName: 'NEO4J_URI',
+    description: 'Base de datos de grafos nativa para GraphRAG, mapas de relaciones complejas y redes.',
+    useCase: 'Crear GraphRAG avanzado donde los conceptos están conectados como nodos y relaciones.',
+    freeTier: '1 instancia gratuita AuraDB Free permanente (hasta 200k nodos y 400k relaciones).',
+    consoleUrl: 'https://console.neo4j.io',
+    docsUrl: 'https://neo4j.com/docs/aura/'
+  },
+  {
+    id: 'supabase-core',
     name: 'Supabase (PostgreSQL & pgvector)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Database',
     badge: '2 Proyectos Free',
     defaultVarName: 'SUPABASE_URL',
@@ -572,9 +865,9 @@ export const API_DICTIONARY = [
     docsUrl: 'https://supabase.com/docs'
   },
   {
-    id: 'neon-postgres-db',
+    id: 'neon-postgres-core',
     name: 'Neon PostgreSQL (Serverless)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Database',
     badge: '0.5 GB Free',
     defaultVarName: 'DATABASE_URL',
@@ -585,9 +878,9 @@ export const API_DICTIONARY = [
     docsUrl: 'https://neon.tech/docs'
   },
   {
-    id: 'pinecone-vector-db',
+    id: 'pinecone-core',
     name: 'Pinecone (Serverless Vector DB)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Database',
     badge: '100k Vectores Free',
     defaultVarName: 'PINECONE_API_KEY',
@@ -598,9 +891,9 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.pinecone.io'
   },
   {
-    id: 'qdrant-vector-db',
+    id: 'qdrant-core',
     name: 'Qdrant Cloud (Vector DB)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Database',
     badge: '1GB Cluster Free',
     defaultVarName: 'QDRANT_API_KEY',
@@ -611,22 +904,9 @@ export const API_DICTIONARY = [
     docsUrl: 'https://qdrant.tech/documentation'
   },
   {
-    id: 'mongodb-atlas-db',
-    name: 'MongoDB Atlas',
-    category: 'database-vector',
-    icon: 'FolderArchive',
-    badge: '512 MB Free',
-    defaultVarName: 'MONGODB_URI',
-    description: 'Base de datos de documentos NoSQL líder con Vector Search integrado.',
-    useCase: 'Almacenamiento de esquemas flexibles, catálogos y JSON sin estructura rígida.',
-    freeTier: 'Cluster M0 gratuito de 512 MB permanente.',
-    consoleUrl: 'https://cloud.mongodb.com',
-    docsUrl: 'https://www.mongodb.com/docs/atlas'
-  },
-  {
-    id: 'upstash-redis-db',
+    id: 'upstash-redis-core',
     name: 'Upstash (Serverless Redis & Vector)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Layers',
     badge: '10k Comandos/día',
     defaultVarName: 'UPSTASH_REDIS_REST_URL',
@@ -637,9 +917,9 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.upstash.com'
   },
   {
-    id: 'turso-sqlite-db',
+    id: 'turso-core',
     name: 'Turso (Distributed SQLite / libSQL)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Database',
     badge: '9GB Storage Free',
     defaultVarName: 'TURSO_DATABASE_URL',
@@ -650,22 +930,22 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.turso.tech'
   },
   {
-    id: 'weaviate-cloud-db',
-    name: 'Weaviate Cloud (WCD)',
-    category: 'database-vector',
-    icon: 'Layers',
-    badge: 'Sandbox Free',
-    defaultVarName: 'WEAVIATE_API_KEY',
-    description: 'Base de datos vectorial nativa de IA con módulos de vectorización y búsqueda híbrida.',
-    useCase: 'Búsqueda multimodal combinando texto e imágenes.',
-    freeTier: 'Sandbox gratuito en la nube para prototipado.',
-    consoleUrl: 'https://console.weaviate.cloud',
-    docsUrl: 'https://weaviate.io/developers/weaviate'
+    id: 'mongodb-core',
+    name: 'MongoDB Atlas (Vector Search)',
+    category: 'database-vector-graph',
+    icon: 'FolderArchive',
+    badge: '512 MB Free',
+    defaultVarName: 'MONGODB_URI',
+    description: 'Base de datos de documentos NoSQL líder con Vector Search integrado.',
+    useCase: 'Almacenamiento de esquemas flexibles, catálogos y JSON sin estructura rígida.',
+    freeTier: 'Cluster M0 gratuito de 512 MB permanente.',
+    consoleUrl: 'https://cloud.mongodb.com',
+    docsUrl: 'https://www.mongodb.com/docs/atlas'
   },
   {
-    id: 'voyage-ai-embeddings',
-    name: 'Voyage AI (State-of-the-art Embeddings)',
-    category: 'database-vector',
+    id: 'voyage-core',
+    name: 'Voyage AI (Embeddings SOTA)',
+    category: 'database-vector-graph',
     icon: 'Sparkles',
     badge: '50M Tokens Free',
     defaultVarName: 'VOYAGE_API_KEY',
@@ -676,9 +956,22 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.voyageai.com'
   },
   {
-    id: 'convex-backend-db',
+    id: 'weaviate-core',
+    name: 'Weaviate Cloud (WCD)',
+    category: 'database-vector-graph',
+    icon: 'Layers',
+    badge: 'Sandbox Free',
+    defaultVarName: 'WEAVIATE_API_KEY',
+    description: 'Base de datos vectorial nativa de IA con módulos de vectorización y búsqueda híbrida.',
+    useCase: 'Búsqueda multimodal combinando texto e imágenes.',
+    freeTier: 'Sandbox gratuito en la nube para prototipado.',
+    consoleUrl: 'https://console.weaviate.cloud',
+    docsUrl: 'https://weaviate.io/developers/weaviate'
+  },
+  {
+    id: 'convex-core',
     name: 'Convex (Reactive Backend)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Zap',
     badge: 'Plan Free',
     defaultVarName: 'CONVEX_DEPLOYMENT',
@@ -689,24 +982,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.convex.dev'
   },
   {
-    id: 'planetscale-db',
-    name: 'PlanetScale (MySQL Serverless)',
-    category: 'database-vector',
-    icon: 'Database',
-    badge: 'MySQL Cloud',
-    defaultVarName: 'PLANETSCALE_DATABASE_URL',
-    description: 'Plataforma de base de datos MySQL basada en Vitess con migraciones sin downtime.',
-    useCase: 'Aplicaciones relacionales que requieren escalabilidad horizontal extrema.',
-    freeTier: 'Trial credit para desarrolladores.',
-    consoleUrl: 'https://app.planetscale.com',
-    docsUrl: 'https://planetscale.com/docs'
-  },
-  {
-    id: 'cockroachdb-serverless',
+    id: 'cockroachdb-core',
     name: 'CockroachDB (Serverless SQL)',
-    category: 'database-vector',
+    category: 'database-vector-graph',
     icon: 'Shield',
-    badge: '10GB Free',
+    badge: '10GB Storage Free',
     defaultVarName: 'COCKROACH_DATABASE_URL',
     description: 'Base de datos SQL distribuida compatible con PostgreSQL y tolerancia a fallos.',
     useCase: 'Sistemas que requieren consistencia ACID global y cero caídas.',
@@ -715,24 +995,24 @@ export const API_DICTIONARY = [
     docsUrl: 'https://www.cockroachlabs.com/docs'
   },
 
-  // ==========================================
-  // 5. EMAILS, SMS & MENSAJERÍA (10)
-  // ==========================================
+  // =========================================================================
+  // 7. 📧 EMAILS, SMS & NOTIFICACIONES (6)
+  // =========================================================================
   {
-    id: 'resend-email',
+    id: 'resend-core',
     name: 'Resend (Email for Developers)',
     category: 'email-messaging',
     icon: 'Mail',
     badge: '3k Emails/mes',
     defaultVarName: 'RESEND_API_KEY',
-    description: 'La API de envío de correos más moderna para desarrolladores (construida por el equipo de React Email).',
+    description: 'La API de envío de correos más moderna para desarrolladores con soporte de React Email.',
     useCase: 'Correos transaccionales, confirmación de registros y newsletters con plantillas React.',
     freeTier: '3,000 correos al mes (100 emails/día) 100% gratis de por vida.',
     consoleUrl: 'https://resend.com/api-keys',
     docsUrl: 'https://resend.com/docs'
   },
   {
-    id: 'telegram-bot-api',
+    id: 'telegram-core',
     name: 'Telegram Bot API',
     category: 'email-messaging',
     icon: 'Send',
@@ -745,7 +1025,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://core.telegram.org/bots/api'
   },
   {
-    id: 'discord-webhooks',
+    id: 'discord-core',
     name: 'Discord Webhooks & Bot API',
     category: 'email-messaging',
     icon: 'MessageSquare',
@@ -758,7 +1038,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://discord.com/developers/docs/intro'
   },
   {
-    id: 'brevo-sendinblue',
+    id: 'brevo-core',
     name: 'Brevo (Antes Sendinblue)',
     category: 'email-messaging',
     icon: 'MailCheck',
@@ -771,47 +1051,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://developers.brevo.com'
   },
   {
-    id: 'twilio-api',
-    name: 'Twilio (SMS & WhatsApp API)',
-    category: 'email-messaging',
-    icon: 'PhoneCall',
-    badge: '$15 Free Trial',
-    defaultVarName: 'TWILIO_AUTH_TOKEN',
-    description: 'API global para enviar mensajes SMS, WhatsApp y llamadas de voz programáticas.',
-    useCase: 'Verificación en dos pasos por SMS y notificaciones urgentes por WhatsApp.',
-    freeTier: '$15.00 USD de crédito gratuito al crear tu cuenta.',
-    consoleUrl: 'https://console.twilio.com',
-    docsUrl: 'https://www.twilio.com/docs'
-  },
-  {
-    id: 'sendgrid-email',
-    name: 'Twilio SendGrid',
-    category: 'email-messaging',
-    icon: 'Mail',
-    badge: '100 Emails/día',
-    defaultVarName: 'SENDGRID_API_KEY',
-    description: 'La plataforma de entrega de correos electrónicos más consolidada de la industria.',
-    useCase: 'Infraestructura de correo de gran escala con alta reputación de entregabilidad.',
-    freeTier: '100 correos al día gratis para siempre.',
-    consoleUrl: 'https://app.sendgrid.com/settings/api_keys',
-    docsUrl: 'https://docs.sendgrid.com'
-  },
-  {
-    id: 'postmark-email',
-    name: 'Postmark',
-    category: 'email-messaging',
-    icon: 'Send',
-    badge: 'Entrega Rápida',
-    defaultVarName: 'POSTMARK_API_TOKEN',
-    description: 'Servicio de correo ultra veloz especializado en correos transaccionales críticos.',
-    useCase: 'Emails de restablecimiento de contraseña que deben llegar en menos de 2 segundos.',
-    freeTier: '100 correos de prueba gratuitos al mes.',
-    consoleUrl: 'https://account.postmarkapp.com/servers',
-    docsUrl: 'https://postmarkapp.com/developer'
-  },
-  {
-    id: 'pusher-channels',
-    name: 'Pusher (WebSockets & Realtime)',
+    id: 'pusher-core',
+    name: 'Pusher (WebSockets Realtime)',
     category: 'email-messaging',
     icon: 'Wifi',
     badge: '200k Mensajes/día',
@@ -823,37 +1064,24 @@ export const API_DICTIONARY = [
     docsUrl: 'https://pusher.com/docs'
   },
   {
-    id: 'novu-notifications',
-    name: 'Novu (Notification Center)',
+    id: 'twilio-core',
+    name: 'Twilio (SMS & WhatsApp API)',
     category: 'email-messaging',
-    icon: 'Bell',
-    badge: '30k Eventos/mes',
-    defaultVarName: 'NOVU_API_KEY',
-    description: 'Infraestructura unificada de notificaciones (In-App, Email, SMS, Push, Slack).',
-    useCase: 'Centro de notificaciones tipo campana dentro de tu aplicación.',
-    freeTier: '30,000 eventos de notificación gratuitos al mes.',
-    consoleUrl: 'https://dashboard.novu.co/settings/api-keys',
-    docsUrl: 'https://docs.novu.co'
-  },
-  {
-    id: 'onesignal-push',
-    name: 'OneSignal (Push Notifications)',
-    category: 'email-messaging',
-    icon: 'Smartphone',
-    badge: '10k Suscriptores',
-    defaultVarName: 'ONESIGNAL_REST_API_KEY',
-    description: 'Notificaciones push para navegadores web y aplicaciones móviles iOS y Android.',
-    useCase: 'Re-enganchar usuarios con alertas en su pantalla de bloqueo o escritorio.',
-    freeTier: 'Plan gratuito para hasta 10,000 suscriptores web/móvil.',
-    consoleUrl: 'https://dashboard.onesignal.com/apps',
-    docsUrl: 'https://documentation.onesignal.com'
+    icon: 'PhoneCall',
+    badge: '$15 Free Trial',
+    defaultVarName: 'TWILIO_AUTH_TOKEN',
+    description: 'API global para enviar mensajes SMS, WhatsApp y llamadas de voz programáticas.',
+    useCase: 'Verificación en dos pasos por SMS y notificaciones urgentes por WhatsApp.',
+    freeTier: '$15.00 USD de crédito gratuito al crear tu cuenta.',
+    consoleUrl: 'https://console.twilio.com',
+    docsUrl: 'https://www.twilio.com/docs'
   },
 
-  // ==========================================
-  // 6. AUTENTICACIÓN & CIBERSEGURIDAD (8)
-  // ==========================================
+  // =========================================================================
+  // 8. 🔐 AUTENTICACIÓN & CIBERSEGURIDAD (6)
+  // =========================================================================
   {
-    id: 'clerk-auth',
+    id: 'clerk-core',
     name: 'Clerk (Complete User Management)',
     category: 'auth-security',
     icon: 'UserCheck',
@@ -866,7 +1094,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://clerk.com/docs'
   },
   {
-    id: 'auth0-okta',
+    id: 'auth0-core',
     name: 'Auth0 by Okta',
     category: 'auth-security',
     icon: 'Lock',
@@ -879,8 +1107,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://auth0.com/docs'
   },
   {
-    id: 'kinde-auth',
-    name: 'Kinde (Auth for Modern Apps)',
+    id: 'kinde-core',
+    name: 'Kinde (Auth for Modern SaaS)',
     category: 'auth-security',
     icon: 'Key',
     badge: '7.5k MAUs Free',
@@ -892,20 +1120,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://kinde.com/docs'
   },
   {
-    id: 'stytch-auth',
-    name: 'Stytch (Passwordless & B2B Auth)',
-    category: 'auth-security',
-    icon: 'Fingerprint',
-    badge: '10k MAUs Free',
-    defaultVarName: 'STYTCH_SECRET',
-    description: 'Autenticación sin contraseñas: Magic Links, Passkeys WebAuthn y Biometría.',
-    useCase: 'Eliminar las contraseñas tradicionales para mejorar la conversión de registros.',
-    freeTier: '10,000 usuarios activos mensuales gratuitos.',
-    consoleUrl: 'https://stytch.com/dashboard',
-    docsUrl: 'https://stytch.com/docs'
-  },
-  {
-    id: 'fingerprintjs-security',
+    id: 'fingerprint-core',
     name: 'Fingerprint (Device Intelligence)',
     category: 'auth-security',
     icon: 'ShieldAlert',
@@ -918,7 +1133,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://dev.fingerprint.com'
   },
   {
-    id: 'ipinfo-geolocation',
+    id: 'ipinfo-core',
     name: 'IPinfo (IP Geolocation & VPN Detect)',
     category: 'auth-security',
     icon: 'Globe',
@@ -931,7 +1146,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://ipinfo.io/developers'
   },
   {
-    id: 'virustotal-api',
+    id: 'virustotal-core',
     name: 'VirusTotal API',
     category: 'auth-security',
     icon: 'Shield',
@@ -943,25 +1158,12 @@ export const API_DICTIONARY = [
     consoleUrl: 'https://www.virustotal.com/gui/user/api-key',
     docsUrl: 'https://docs.virustotal.com/reference/overview'
   },
-  {
-    id: 'haveibeenpwned-api',
-    name: 'Have I Been Pwned (HIBP)',
-    category: 'auth-security',
-    icon: 'EyeOff',
-    badge: 'API Pública',
-    defaultVarName: 'HIBP_API_KEY',
-    description: 'Base de datos mundial de contraseñas y cuentas vulneradas en filtraciones masivas.',
-    useCase: 'Avisar al usuario si la contraseña que está eligiendo ya fue filtrada en internet.',
-    freeTier: 'Búsqueda de contraseñas comprometidas vía Pwned Passwords 100% gratis.',
-    consoleUrl: 'https://haveibeenpwned.com/API/Key',
-    docsUrl: 'https://haveibeenpwned.com/API/v3'
-  },
 
-  // ==========================================
-  // 7. PAGOS, DIVISAS & FINTECH (6)
-  // ==========================================
+  // =========================================================================
+  // 9. 💳 PAGOS, DIVISAS & FACTURACIÓN (4)
+  // =========================================================================
   {
-    id: 'stripe-payments',
+    id: 'stripe-core',
     name: 'Stripe API',
     category: 'payments-fintech',
     icon: 'CreditCard',
@@ -974,7 +1176,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://stripe.com/docs/api'
   },
   {
-    id: 'lemon-squeezy',
+    id: 'lemonsqueezy-core',
     name: 'Lemon Squeezy (Merchant of Record)',
     category: 'payments-fintech',
     icon: 'DollarSign',
@@ -987,7 +1189,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.lemonsqueezy.com'
   },
   {
-    id: 'mercadopago-api',
+    id: 'mercadopago-core',
     name: 'Mercado Pago Developers',
     category: 'payments-fintech',
     icon: 'CreditCard',
@@ -1000,7 +1202,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://www.mercadopago.com/developers/es/docs'
   },
   {
-    id: 'open-exchange-rates',
+    id: 'open-exchange-core',
     name: 'Open Exchange Rates',
     category: 'payments-fintech',
     icon: 'TrendingUp',
@@ -1012,51 +1214,25 @@ export const API_DICTIONARY = [
     consoleUrl: 'https://openexchangerates.org/account/app-ids',
     docsUrl: 'https://docs.openexchangerates.org'
   },
-  {
-    id: 'currencyapi-forex',
-    name: 'CurrencyAPI',
-    category: 'payments-fintech',
-    icon: 'DollarSign',
-    badge: '300 Requests/mes',
-    defaultVarName: 'CURRENCY_API_KEY',
-    description: 'Tasas de cambio de más de 170 monedas mundiales con datos históricos.',
-    useCase: 'Calculadoras financieras y conversiones de divisas en carritos de compra.',
-    freeTier: '300 solicitudes mensuales en plan gratuito.',
-    consoleUrl: 'https://app.currencyapi.com/api-keys',
-    docsUrl: 'https://currencyapi.com/docs'
-  },
-  {
-    id: 'coinbase-commerce',
-    name: 'Coinbase Commerce API',
-    category: 'payments-fintech',
-    icon: 'Bitcoin',
-    badge: 'Crypto Checkout',
-    defaultVarName: 'COINBASE_COMMERCE_API_KEY',
-    description: 'Aceptar pagos en Bitcoin, Ethereum, USDC, Solana y otras criptomonedas.',
-    useCase: 'Permitir que tus clientes paguen tus servicios en criptomonedas.',
-    freeTier: 'Acceso a la API gratuito (solo comisión por transacción procesada).',
-    consoleUrl: 'https://commerce.coinbase.com/settings/security',
-    docsUrl: 'https://docs.cloud.coinbase.com/commerce'
-  },
 
-  // ==========================================
-  // 8. CLOUD, HOSTING, STORAGE & CI/CD (8)
-  // ==========================================
+  // =========================================================================
+  // 10. ☁️ CLOUD, HOSTING, STORAGE & DEVOPS (6)
+  // =========================================================================
   {
-    id: 'cloudflare-r2-storage',
-    name: 'Cloudflare R2 (S3-Compatible Storage)',
+    id: 'cloudflare-r2-core',
+    name: 'Cloudflare R2 (S3 Storage)',
     category: 'cloud-devops',
     icon: 'HardDrive',
     badge: '10GB Free (0 Egress)',
     defaultVarName: 'CLOUDFLARE_R2_SECRET_KEY',
-    description: 'Almacenamiento de objetos compatible con AWS S3 pero con CERO costos por transferencia de salida (egress).',
+    description: 'Almacenamiento de objetos compatible con AWS S3 pero con CERO costos por transferencia de salida.',
     useCase: 'Guardar imágenes, videos, copias de seguridad y archivos pesados de tus usuarios.',
     freeTier: '10 GB de almacenamiento y 10 millones de lecturas gratis al mes.',
     consoleUrl: 'https://dash.cloudflare.com/?to=/:account/r2',
     docsUrl: 'https://developers.cloudflare.com/r2'
   },
   {
-    id: 'vercel-api',
+    id: 'vercel-core',
     name: 'Vercel API & Token',
     category: 'cloud-devops',
     icon: 'Triangle',
@@ -1069,7 +1245,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://vercel.com/docs/rest-api'
   },
   {
-    id: 'render-cloud',
+    id: 'render-core',
     name: 'Render Cloud (Web Services & DBs)',
     category: 'cloud-devops',
     icon: 'Server',
@@ -1082,8 +1258,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://render.com/docs'
   },
   {
-    id: 'github-pat',
-    name: 'GitHub Personal Access Token (PAT)',
+    id: 'github-pat-core',
+    name: 'GitHub Personal Access Token',
     category: 'cloud-devops',
     icon: 'GitBranch',
     badge: '5k Requests/hora',
@@ -1095,8 +1271,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.github.com/en/rest'
   },
   {
-    id: 'sentry-monitoring',
-    name: 'Sentry (Error & Performance Tracking)',
+    id: 'sentry-core',
+    name: 'Sentry (Error Tracking)',
     category: 'cloud-devops',
     icon: 'AlertTriangle',
     badge: '5k Errores/mes',
@@ -1108,34 +1284,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.sentry.io'
   },
   {
-    id: 'betterstack-logtail',
-    name: 'Better Stack (Uptime & Logtail)',
-    category: 'cloud-devops',
-    icon: 'Activity',
-    badge: '1GB Logs/mes',
-    defaultVarName: 'LOGTAIL_SOURCE_TOKEN',
-    description: 'Monitoreo de estado de servidores (heartbeat) y almacenamiento de logs en la nube.',
-    useCase: 'Alertas por correo o teléfono si tu servidor se cae y visor de logs centralizado.',
-    freeTier: '1GB de logs mensuales y 10 monitores de uptime gratis.',
-    consoleUrl: 'https://betterstack.com',
-    docsUrl: 'https://betterstack.com/docs'
-  },
-  {
-    id: 'axiom-cloud-logging',
-    name: 'Axiom (Serverless Log Management)',
-    category: 'cloud-devops',
-    icon: 'Terminal',
-    badge: '0.5 TB Logs Free',
-    defaultVarName: 'AXIOM_TOKEN',
-    description: 'Almacenamiento y consulta ultra veloz de logs sin servidor para Vercel y AWS.',
-    useCase: 'Auditoría de eventos, analítica de servidores y rastreo de logs estructurados.',
-    freeTier: '500 GB de ingesta de logs gratuitos al mes de por vida.',
-    consoleUrl: 'https://app.axiom.co/settings/tokens',
-    docsUrl: 'https://axiom.co/docs'
-  },
-  {
-    id: 'backblaze-b2',
-    name: 'Backblaze B2 Cloud Storage',
+    id: 'backblaze-b2-core',
+    name: 'Backblaze B2 Storage',
     category: 'cloud-devops',
     icon: 'HardDrive',
     badge: '10GB Free',
@@ -1147,11 +1297,11 @@ export const API_DICTIONARY = [
     docsUrl: 'https://www.backblaze.com/b2/docs'
   },
 
-  // ==========================================
-  // 9. MAPAS, GEOLOCALIZACIÓN & CLIMA (6)
-  // ==========================================
+  // =========================================================================
+  // 11. 🗺️ MAPAS, GEOLOCALIZACIÓN & CLIMA (4)
+  // =========================================================================
   {
-    id: 'mapbox-maps',
+    id: 'mapbox-core',
     name: 'Mapbox API (Maps & Navigation)',
     category: 'maps-geo-weather',
     icon: 'Map',
@@ -1164,7 +1314,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://docs.mapbox.com'
   },
   {
-    id: 'openweathermap',
+    id: 'openweathermap-core',
     name: 'OpenWeatherMap API',
     category: 'maps-geo-weather',
     icon: 'Sun',
@@ -1177,7 +1327,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://openweathermap.org/api'
   },
   {
-    id: 'weatherapi-com',
+    id: 'weatherapi-core',
     name: 'WeatherAPI',
     category: 'maps-geo-weather',
     icon: 'CloudRain',
@@ -1190,7 +1340,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://www.weatherapi.com/docs'
   },
   {
-    id: 'geoapify-location',
+    id: 'geoapify-core',
     name: 'Geoapify (Location Platform)',
     category: 'maps-geo-weather',
     icon: 'Navigation',
@@ -1202,38 +1352,12 @@ export const API_DICTIONARY = [
     consoleUrl: 'https://myprojects.geoapify.com',
     docsUrl: 'https://apidocs.geoapify.com'
   },
-  {
-    id: 'locationiq-geocoding',
-    name: 'LocationIQ (Geocoding & Maps)',
-    category: 'maps-geo-weather',
-    icon: 'Compass',
-    badge: '5k Requests/día',
-    defaultVarName: 'LOCATIONIQ_API_KEY',
-    description: 'Conversión rápida de direcciones a coordenadas de latitud/longitud.',
-    useCase: 'Ubicar clientes en el mapa según su dirección física.',
-    freeTier: '5,000 solicitudes gratuitas al día.',
-    consoleUrl: 'https://locationiq.com/dashboard#accesstoken',
-    docsUrl: 'https://locationiq.com/docs'
-  },
-  {
-    id: 'ipgeolocation-io',
-    name: 'IPGeolocation API',
-    category: 'maps-geo-weather',
-    icon: 'MapPin',
-    badge: '1k Requests/día',
-    defaultVarName: 'IPGEOLOCATION_API_KEY',
-    description: 'Geolocalización por IP, zona horaria y astronomía solar/lunar.',
-    useCase: 'Ajustar la zona horaria del usuario automáticamente.',
-    freeTier: '1,000 peticiones diarias gratis (30,000 al mes).',
-    consoleUrl: 'https://ipgeolocation.io/dashboard.html',
-    docsUrl: 'https://ipgeolocation.io/documentation'
-  },
 
-  // ==========================================
-  // 10. PRODUCTIVIDAD, CRMS & MEDIA (8)
-  // ==========================================
+  // =========================================================================
+  // 12. ⚙️ PRODUCTIVIDAD & SOCIAL MEDIA (4)
+  // =========================================================================
   {
-    id: 'notion-api',
+    id: 'notion-core',
     name: 'Notion API',
     category: 'productivity-social',
     icon: 'FileText',
@@ -1246,7 +1370,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://developers.notion.com'
   },
   {
-    id: 'airtable-api',
+    id: 'airtable-core',
     name: 'Airtable API',
     category: 'productivity-social',
     icon: 'Table',
@@ -1259,20 +1383,7 @@ export const API_DICTIONARY = [
     docsUrl: 'https://airtable.com/developers/web/api/introduction'
   },
   {
-    id: 'slack-bot-api',
-    name: 'Slack API & Webhooks',
-    category: 'productivity-social',
-    icon: 'Slack',
-    badge: '100% Gratis',
-    defaultVarName: 'SLACK_BOT_TOKEN',
-    description: 'Integraciones, bots y comandos interactivos para espacios de trabajo de Slack.',
-    useCase: 'Recibir alertas de soporte, métricas diarias o interactuar con tu equipo mediante comandos.',
-    freeTier: '100% gratuito para cualquier workspace.',
-    consoleUrl: 'https://api.slack.com/apps',
-    docsUrl: 'https://api.slack.com'
-  },
-  {
-    id: 'unsplash-images',
+    id: 'unsplash-core',
     name: 'Unsplash API (Photos)',
     category: 'productivity-social',
     icon: 'Camera',
@@ -1285,21 +1396,8 @@ export const API_DICTIONARY = [
     docsUrl: 'https://unsplash.com/documentation'
   },
   {
-    id: 'pexels-api',
-    name: 'Pexels API (Photos & Videos)',
-    category: 'productivity-social',
-    icon: 'Video',
-    badge: '200 Requests/hora',
-    defaultVarName: 'PEXELS_API_KEY',
-    description: 'Millones de fotos y videos de stock gratuitos en alta definición.',
-    useCase: 'Agregar videos de fondo e imágenes dinámicas en tu web.',
-    freeTier: '200 peticiones por hora (20,000 peticiones por mes) gratis.',
-    consoleUrl: 'https://www.pexels.com/api',
-    docsUrl: 'https://www.pexels.com/api/documentation'
-  },
-  {
-    id: 'cloudinary-media',
-    name: 'Cloudinary (Image & Video CDN)',
+    id: 'cloudinary-core',
+    name: 'Cloudinary (CDN Image/Video)',
     category: 'productivity-social',
     icon: 'Image',
     badge: '25 Créditos Free',
@@ -1309,31 +1407,5 @@ export const API_DICTIONARY = [
     freeTier: '25 créditos mensuales (~25,000 transformaciones o 25GB) gratuitos.',
     consoleUrl: 'https://console.cloudinary.com/settings/api-keys',
     docsUrl: 'https://cloudinary.com/documentation'
-  },
-  {
-    id: 'tinypng-compression',
-    name: 'TinyPNG / TinyJPG API',
-    category: 'productivity-social',
-    icon: 'Minimize2',
-    badge: '500 Fotos/mes',
-    defaultVarName: 'TINIFY_API_KEY',
-    description: 'Compresión inteligente de imágenes PNG y JPEG reduciendo el peso hasta un 70% sin perder calidad visual.',
-    useCase: 'Comprimir fotos que suben los usuarios antes de guardarlas en S3 o Cloudflare R2.',
-    freeTier: '500 compresiones de imágenes gratuitas cada mes.',
-    consoleUrl: 'https://tinypng.com/developers',
-    docsUrl: 'https://tinypng.com/developers/reference'
-  },
-  {
-    id: 'spotify-web-api',
-    name: 'Spotify Web API',
-    category: 'productivity-social',
-    icon: 'Music',
-    badge: '100% Gratis',
-    defaultVarName: 'SPOTIFY_CLIENT_SECRET',
-    description: 'Catálogo de música, playlists, podcasts, reproducción en vivo y metadatos de artistas.',
-    useCase: 'Mostrar qué estás escuchando en tu portafolio o crear generadores de playlists con IA.',
-    freeTier: '100% gratuito para desarrolladores.',
-    consoleUrl: 'https://developer.spotify.com/dashboard',
-    docsUrl: 'https://developer.spotify.com/documentation/web-api'
   }
 ];
