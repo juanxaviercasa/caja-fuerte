@@ -147,6 +147,41 @@ Recuerda ir a tu Bóveda y crear un Nuevo Secreto con la API Key correspondiente
     }
   };
 
+    const handleExportJSON = () => {
+    if (!activeTemplate) return;
+    
+    const blueprint = {
+      name: activeTemplate.name,
+      description: activeTemplate.description,
+      version: "1.0",
+      export_target: "make_n8n_compatible",
+      nodes: activeTemplate.nodes?.map((node, index) => ({
+        id: `node_${index + 1}`,
+        type: "action",
+        name: node.name,
+        api_service: node.name,
+        category: node.category || "General",
+        description: node.description || "Paso de la arquitectura",
+        credentials_required: node.name.toUpperCase().replace(/[^A-Z0-9]/g, '_') + "_API_KEY"
+      })),
+      connections: activeTemplate.nodes?.map((node, index) => {
+        if (index === (activeTemplate.nodes?.length || 1) - 1) return null;
+        return {
+          source: `node_${index + 1}`,
+          target: `node_${index + 2}`
+        }
+      }).filter(Boolean)
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(blueprint, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `${activeTemplate.id}_blueprint.json`);
+    document.body.appendChild(downloadAnchorNode); 
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       if (canvasRef.current?.requestFullscreen) {
