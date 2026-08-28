@@ -187,10 +187,10 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
                     </div>
                     <div className="flex gap-2 shrink-0">
                       <button
-                        onClick={() => handleCopy(link.url, \`\${aff.id}-\${idx}\`)}
+                        onClick={() => handleCopy(link.url, `${aff.id}-${idx}`)}
                         className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
                       >
-                        {copiedId === \`\${aff.id}-\${idx}\` ? (
+                        {copiedId === `${aff.id}-${idx}` ? (
                           <><Check className="w-3.5 h-3.5 text-emerald-400" /> <span className="text-emerald-400">Copiado</span></>
                         ) : (
                           <><Copy className="w-3.5 h-3.5" /> Copiar</>
