@@ -739,7 +739,22 @@ function VaultCore() {
                 />
               </motion.div>
             )}
-            {mainViewMode === 'workflows' && (
+            {mainViewMode === 'affiliates' && (
+                <motion.div
+                  key="affiliates"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="w-full h-full flex flex-col"
+                >
+                  <AffiliatesView
+                    vaultData={vaultData}
+                    onSaveSecret={handleSaveSecret}
+                    onDeleteSecret={handleDeleteSecret}
+                  />
+                </motion.div>
+              )}
+              {mainViewMode === 'workflows' && (
               <WorkflowsView key="workflows" vaultData={vaultData} />
             )}
           </AnimatePresence>
