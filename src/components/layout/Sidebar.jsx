@@ -149,6 +149,25 @@ export function Sidebar({
           </span>
         </button>
 
+        {/* Enlaces de Afiliados */}
+        <button
+          id="tour-sidebar-affiliates"
+          onClick={() => { setMainViewMode('affiliates'); onCloseMobileMenu(); }}
+          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all cursor-pointer text-left ${
+            mainViewMode === 'affiliates'
+              ? 'bg-amber-500/20 border-amber-500/50 text-amber-200 shadow-md shadow-amber-950/30'
+              : 'bg-vault-900/60 hover:bg-slate-800/60 border-slate-800 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <Link className="w-4 h-4 text-amber-400" />
+            <span>Enlaces de Afiliados</span>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-md border border-amber-500/30">
+            {secrets.filter(s => s.key && s.key.startsWith('AFFILIATE_LINK_')).length}
+          </span>
+        </button>
+
         {/* Flujos de IA */}
         <button
           id="tour-sidebar-workflows"
