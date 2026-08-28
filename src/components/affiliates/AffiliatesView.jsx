@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Plus, Copy, Trash2, Check, ExternalLink, Edit2, Link as LinkIcon, BarChart3, MessageSquareText } from 'lucide-react';
+import { Plus, Copy, Trash2, Check, ExternalLink, Edit2, Link as LinkIcon, BarChart3, MessageSquareText, User, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [visiblePasswords, setVisiblePasswords] = useState({});
 
   // Form State
   const [platform, setPlatform] = useState('');
   const [dashboardUrl, setDashboardUrl] = useState('');
+  const [loginUser, setLoginUser] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [notes, setNotes] = useState('');
   const [links, setLinks] = useState([{ name: 'Link Principal', url: '' }]);
 
@@ -20,9 +23,9 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
     let data;
     try {
       data = JSON.parse(s.value);
-      if (!data.links) data = { dashboardUrl: '', links: [{ name: 'Default', url: s.value }], notes: '' };
+      if (!data.links) data = { dashboardUrl: '', loginUser: '', loginPassword: '', links: [{ name: 'Default', url: s.value }], notes: '' };
     } catch (e) {
-      data = { dashboardUrl: '', links: [{ name: 'Default', url: s.value }], notes: '' };
+      data = { dashboardUrl: '', loginUser: '', loginPassword: '', links: [{ name: 'Default', url: s.value }], notes: '' };
     }
     return {
       id: s.id,
@@ -37,12 +40,16 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
       setEditingId(affiliate.id);
       setPlatform(affiliate.title);
       setDashboardUrl(affiliate.dashboardUrl || '');
+      setLoginUser(affiliate.loginUser || '');
+      setLoginPassword(affiliate.loginPassword || '');
       setNotes(affiliate.notes || '');
       setLinks(affiliate.links && affiliate.links.length > 0 ? affiliate.links : [{ name: 'Link Principal', url: '' }]);
     } else {
       setEditingId(null);
       setPlatform('');
       setDashboardUrl('');
+      setLoginUser('');
+      setLoginPassword('');
       setNotes('');
       setLinks([{ name: 'Link Principal', url: '' }]);
     }
@@ -55,11 +62,12 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
     const safeVarName = `AFFILIATE_LINK_${platform.trim().toUpperCase().replace(/[^A-Z0-9]/g, '_')}`;
     const valueObj = {
       dashboardUrl: dashboardUrl.trim(),
+      loginUser: loginUser.trim(),
+      loginPassword: loginPassword,
       notes: notes.trim(),
       links: links.filter(l => l.url.trim() !== '')
     };
 
-    // Si no hay links validos, agregamos uno vacio para que no se rompa la UI
     if (valueObj.links.length === 0) {
         valueObj.links.push({ name: 'Enlace', url: '' });
     }
@@ -77,7 +85,7 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
       quotaInfo: '',
       notes: notes.trim(),
       updatedAt: new Date().toISOString(),
-      createdAt: editingId ? undefined : new Date().toISOString() // Let App.jsx handle keeping original createdAt if needed
+      createdAt: editingId ? undefined : new Date().toISOString()
     };
 
     onSaveSecret(payload);
@@ -97,6 +105,10 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const togglePasswordVisibility = (id) => {
+    setVisiblePasswords(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const handleAddLinkField = () => {
     setLinks([...links, { name: '', url: '' }]);
   };
@@ -108,7 +120,7 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
   };
 
   const handleRemoveLinkField = (index) => {
-    if (links.length === 1) return; // Always keep at least one
+    if (links.length === 1) return;
     setLinks(links.filter((_, i) => i !== index));
   };
 
@@ -120,7 +132,7 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
             Mini-Gestor de Afiliados
           </h1>
           <p className="text-slate-400 mt-2">
-            Links, comisiones y paneles de control centralizados y encriptados.
+            Links, credenciales de acceso y paneles de control centralizados y encriptados.
           </p>
         </div>
         
@@ -138,7 +150,7 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
           <div className="col-span-full py-16 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-vault-900/30">
             <LinkIcon className="w-12 h-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-slate-300 mb-1">Sin plataformas afiliadas</h3>
-            <p className="text-sm text-slate-500">Haz clic en el botón de arriba para registrar tu primera campaña.</p>
+            <p className="text-sm text-slate-500">Haz clic en el botón de arriba para registrar tu primera campaña y credenciales.</p>
           </div>
         ) : (
           parsedAffiliates.map((aff) => (
@@ -168,17 +180,67 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
                 </div>
               </div>
 
+              {/* Credenciales de Acceso */}
+              {(aff.loginUser || aff.loginPassword) && (
+                <div className="bg-vault-950 rounded-xl border border-slate-800/80 p-3 space-y-2">
+                  <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Acceso</h4>
+                  
+                  {aff.loginUser && (
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 overflow-hidden text-slate-300">
+                        <User className="w-4 h-4 text-slate-500 shrink-0" />
+                        <span className="text-sm truncate font-medium">{aff.loginUser}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleCopy(aff.loginUser, `user-${aff.id}`)}
+                        className="p-1.5 text-slate-500 hover:text-amber-400 transition-colors shrink-0"
+                        title="Copiar Usuario"
+                      >
+                        {copiedId === `user-${aff.id}` ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  )}
+
+                  {aff.loginPassword && (
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 overflow-hidden text-slate-300">
+                        <KeyRound className="w-4 h-4 text-slate-500 shrink-0" />
+                        <span className="text-sm font-mono tracking-widest truncate">
+                          {visiblePasswords[aff.id] ? aff.loginPassword : '••••••••••••'}
+                        </span>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button 
+                          onClick={() => togglePasswordVisibility(aff.id)}
+                          className="p-1.5 text-slate-500 hover:text-amber-400 transition-colors"
+                          title="Mostrar/Ocultar"
+                        >
+                          {visiblePasswords[aff.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                        <button 
+                          onClick={() => handleCopy(aff.loginPassword, `pass-${aff.id}`)}
+                          className="p-1.5 text-slate-500 hover:text-amber-400 transition-colors"
+                          title="Copiar Contraseña"
+                        >
+                          {copiedId === `pass-${aff.id}` ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Notes */}
               {aff.notes && (
                 <div className="flex items-start gap-2 bg-slate-800/30 p-3 rounded-xl border border-slate-800/50">
                   <MessageSquareText className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                  <p className="text-sm text-slate-300 leading-relaxed">{aff.notes}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{aff.notes}</p>
                 </div>
               )}
               
               {/* Links List */}
               <div className="space-y-3 mt-2">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Enlaces de Referido</h4>
+                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Enlaces de Referido</h4>
                 {aff.links.map((link, idx) => (
                   <div key={idx} className="flex flex-col sm:flex-row gap-2 bg-vault-950 p-2.5 rounded-xl border border-slate-800">
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
@@ -229,11 +291,11 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
-                      Nombre de la Plataforma *
+                      Plataforma *
                     </label>
                     <input
                       type="text"
-                      placeholder="Ej. Make, Hostinger, Vapi..."
+                      placeholder="Ej. Make, Hostinger..."
                       className="w-full bg-vault-950 border border-slate-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-amber-500 transition-colors"
                       value={platform}
                       onChange={(e) => setPlatform(e.target.value)}
@@ -241,15 +303,43 @@ const AffiliatesView = ({ vaultData, onSaveSecret, onDeleteSecret }) => {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
-                      URL del Dashboard (Opcional)
+                      URL del Dashboard
                     </label>
                     <input
                       type="text"
-                      placeholder="https://afiliados.plataforma.com"
+                      placeholder="https://afiliados.com/login"
                       className="w-full bg-vault-950 border border-slate-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-500 transition-colors"
                       value={dashboardUrl}
                       onChange={(e) => setDashboardUrl(e.target.value)}
                     />
+                  </div>
+                </div>
+
+                {/* Credenciales */}
+                <div className="bg-vault-950/50 p-4 rounded-xl border border-slate-800 space-y-4">
+                  <h4 className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                    <User className="w-4 h-4 text-slate-500" />
+                    Credenciales de Acceso (Encriptadas)
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Usuario o Email"
+                        className="w-full bg-vault-900 border border-slate-700 text-white px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                        value={loginUser}
+                        onChange={(e) => setLoginUser(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="password"
+                        placeholder="Contraseña"
+                        className="w-full bg-vault-900 border border-slate-700 text-white px-4 py-2.5 rounded-lg text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
 
