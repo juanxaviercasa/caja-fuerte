@@ -16,6 +16,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { SecretList } from './components/secrets/SecretList';
 import { ApiEncyclopediaView } from './components/dictionary/ApiEncyclopediaView';
 import { WorkflowsView } from './components/workflows/WorkflowsView';
+import AffiliatesView from './components/affiliates/AffiliatesView';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { SecretModal } from './components/secrets/SecretModal';
