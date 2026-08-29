@@ -16,7 +16,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { SecretList } from './components/secrets/SecretList';
 import { ApiEncyclopediaView } from './components/dictionary/ApiEncyclopediaView';
 import { WorkflowsView } from './components/workflows/WorkflowsView';
-import AffiliatesView from './components/affiliates/AffiliatesView';
+import DomainsView from './components/domains/DomainsView';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { SecretModal } from './components/secrets/SecretModal';
@@ -740,7 +740,7 @@ function VaultCore() {
                 />
               </motion.div>
             )}
-            {mainViewMode === 'affiliates' && (
+            {mainViewMode === 'domains' && (
                 <motion.div
                   key="affiliates"
                   initial={{ opacity: 0, x: -20 }}
@@ -748,7 +748,7 @@ function VaultCore() {
                   exit={{ opacity: 0, x: 20 }}
                   className="w-full h-full flex flex-col"
                 >
-                  <AffiliatesView
+                  <DomainsView
                     vaultData={vaultData}
                     onSaveSecret={handleSaveSecret}
                     onDeleteSecret={handleDeleteSecret}
