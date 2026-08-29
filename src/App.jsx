@@ -303,17 +303,26 @@ function VaultCore() {
   };
 
   // Secret Operations
-  const handleSaveSecret = async (secretPayload) => {
-    const existingIndex = (vaultData?.secrets || []).findIndex(s => s.id === secretPayload.id);
-    let updatedSecrets = [];
+    const handleSaveSecret = async (payloads) => {
+    // Accept either a single object or an array
+    const payloadList = Array.isArray(payloads) ? payloads : [payloads];
+    let updatedSecrets = [...(vaultData?.secrets || [])];
 
-    if (existingIndex >= 0) {
-      updatedSecrets = [...vaultData.secrets];
-      updatedSecrets[existingIndex] = secretPayload;
-      addToast(`Secreto "${secretPayload.title}" actualizado en la nube.`, 'success');
-    } else {
-      updatedSecrets = [secretPayload, ...(vaultData?.secrets || [])];
-      addToast(`Secreto "${secretPayload.title}" guardado en la Nube ☁️`, 'success');
+    for (const secretPayload of payloadList) {
+      const existingIndex = updatedSecrets.findIndex(s => s.id === secretPayload.id);
+      if (existingIndex >= 0) {
+        updatedSecrets[existingIndex] = secretPayload;
+        addToast(`Secreto "${secretPayload.title}" actualizado.`, 'success');
+      } else {
+        updatedSecrets = [secretPayload, ...updatedSecrets];
+      }
+    }
+
+    if (payloadList.length > 1) {
+      addToast(`${payloadList.length} claves guardadas en la Nube ✓`, 'success');
+    } else if (payloadList.length === 1) {
+      const existsAlready = (vaultData?.secrets || []).find(s => s.id === payloadList[0].id);
+      if (!existsAlready) addToast(`Secreto "${payloadList[0].title}" guardado en la Nube ✓`, 'success');
     }
 
     saveChanges({
@@ -625,7 +634,12 @@ function VaultCore() {
         setSearchQuery={setSearchQuery}
         mainViewMode={mainViewMode}
         setMainViewMode={setMainViewMode}
-        onOpenNewSecret={() => {
+        onOpenNewProjectEnv={() => {
+                      setEditingSecret(null);
+                      setPresetProviderId('custom');
+                      setIsSecretModalOpen(true);
+                    }}
+                    onOpenNewSecret={() => {
           setEditingSecret(null);
           setPresetProviderId('google-ai-studio');
           setIsSecretModalOpen(true);
@@ -773,6 +787,7 @@ function VaultCore() {
         onSave={handleSaveSecret}
         editingSecret={editingSecret}
         initialProviderId={presetProviderId}
+          activeEnvironment={activeEnvironment}
         projects={vaultData?.projects || []}
         activeProjectId={activeProjectId}
       />

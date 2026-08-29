@@ -24,6 +24,7 @@ export function SecretList({
   activeCategory,
   searchQuery,
   onOpenNewSecret,
+    onOpenNewProjectEnv,
   onOpenEnvStudio,
   onEditSecret,
   onDeleteSecret,
@@ -101,9 +102,22 @@ export function SecretList({
               {totalCount} {totalCount === 1 ? 'clave' : 'claves'}
             </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            {activeProject?.description || 'Gestiona y exporta tus credenciales con cifrado seguro.'}
-          </p>
+          
+            <div className="flex items-center gap-4 mt-2">
+              <p className="text-xs text-slate-400">
+                {activeProject?.description || 'Gestiona y exporta tus credenciales con cifrado seguro.'}
+              </p>
+              {activeProject && activeProject.id !== 'all' && (
+                <button
+                  onClick={onOpenNewProjectEnv}
+                  className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Agregar Clave al Proyecto</span>
+                </button>
+              )}
+            </div>
+
         </div>
 
         {/* View & Sort Controls */}

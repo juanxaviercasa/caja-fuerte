@@ -15,11 +15,18 @@ import {
   Database,
   Cloud,
   Lock,
-  Globe
+  Globe,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { PROVIDER_TEMPLATES, ENVIRONMENTS, SECRET_TYPES } from '../../data/providers';
 import { generateSecurePassword } from '../../services/crypto';
+
+// Helper to create a blank key-value entry
+function newEntry(varName = '', value = '') {
+  return { id: `kv_${Date.now()}_${Math.random().toString(36).slice(2,6)}`, varName, value, showValue: false };
+}
 
 export function SecretModal({
   isOpen,
@@ -28,15 +35,15 @@ export function SecretModal({
   editingSecret = null,
   initialProviderId = null,
   projects = [],
-  activeProjectId = 'all'
+  activeProjectId = 'all',
+    activeEnvironment = 'all'
 }) {
   const [selectedProviderId, setSelectedProviderId] = useState(initialProviderId || 'google-ai-studio');
   const [title, setTitle] = useState('');
-  const [varName, setVarName] = useState('');
-  const [value, setValue] = useState('');
-  const [showValue, setShowValue] = useState(false);
+  // Multi-key entries: each has { id, varName, value, showValue }
+  const [entries, setEntries] = useState([newEntry()]);
   const [projectId, setProjectId] = useState(activeProjectId !== 'all' ? activeProjectId : 'global-keys');
-  const [environment, setEnvironment] = useState('development');
+  const [environment, setEnvironment] = useState(activeEnvironment !== 'all' ? activeEnvironment : 'development');
   const [category, setCategory] = useState('ai');
   const [type, setType] = useState('api_key');
   const [quotaInfo, setQuotaInfo] = useState('');
@@ -48,20 +55,24 @@ export function SecretModal({
     const tmpl = PROVIDER_TEMPLATES.find(p => p.id === providerId);
     if (tmpl) {
       setTitle(tmpl.name);
-      setVarName(tmpl.defaultVarName);
       setCategory(tmpl.category);
       setType(tmpl.type);
       setQuotaInfo(tmpl.quotaInfo || '');
+      // Set first entry's varName from template
+      setEntries(prev => {
+        const updated = [...prev];
+        updated[0] = { ...updated[0], varName: tmpl.defaultVarName };
+        return updated;
+      });
     }
   };
 
-  // Populate when editing
+  // Populate when editing (editing mode = single entry)
   useEffect(() => {
     if (editingSecret) {
       setSelectedProviderId(editingSecret.providerId || 'custom-secret');
       setTitle(editingSecret.title || '');
-      setVarName(editingSecret.varName || editingSecret.key || '');
-      setValue(editingSecret.value || '');
+      setEntries([newEntry(editingSecret.varName || editingSecret.key || '', editingSecret.value || '')]);
       setProjectId(editingSecret.projectId || 'global-keys');
       setEnvironment(editingSecret.environment || 'development');
       setCategory(editingSecret.category || 'ai');
@@ -71,48 +82,93 @@ export function SecretModal({
     } else if (initialProviderId) {
       handleSelectProvider(initialProviderId);
       if (activeProjectId && activeProjectId !== 'all') {
-        setProjectId(activeProjectId);
-      }
+          setProjectId(activeProjectId);
+        }
+        if (activeEnvironment && activeEnvironment !== 'all') {
+          setEnvironment(activeEnvironment);
+        }
     } else {
-      // Default to Google AI Studio template
+      // Reset for new
       handleSelectProvider('google-ai-studio');
-      setValue('');
+      setEntries([newEntry()]);
       setNotes('');
       if (activeProjectId && activeProjectId !== 'all') {
-        setProjectId(activeProjectId);
-      }
+          setProjectId(activeProjectId);
+        }
+        if (activeEnvironment && activeEnvironment !== 'all') {
+          setEnvironment(activeEnvironment);
+        }
     }
   }, [editingSecret, initialProviderId, isOpen, activeProjectId]);
 
   const activeTemplate = PROVIDER_TEMPLATES.find(p => p.id === selectedProviderId);
 
-  const handleGeneratePassword = () => {
+  // Entry management
+  const updateEntry = (id, field, val) => {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, [field]: val } : e));
+  };
+
+  const addEntry = () => {
+    setEntries(prev => [...prev, newEntry()]);
+  };
+
+  const removeEntry = (id) => {
+    setEntries(prev => prev.filter(e => e.id !== id));
+  };
+
+  const generateForEntry = (id) => {
     const gen = generateSecurePassword({ length: 32, symbols: true, numbers: true });
-    setValue(gen);
-    setShowValue(true);
+    updateEntry(id, 'value', gen);
+    updateEntry(id, 'showValue', true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !varName || !value) return;
+    const validEntries = entries.filter(en => en.varName.trim() && en.value.trim());
+    if (!title || validEntries.length === 0) return;
 
-    const secretPayload = {
-      id: editingSecret ? editingSecret.id : `sec_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      providerId: selectedProviderId,
-      title: title.trim(),
-      varName: varName.trim().toUpperCase().replace(/[^A-Za-z0-9_]/g, '_'),
-      value: value.trim(),
-      projectId: projectId || 'global-keys',
-      environment: environment || 'development',
-      category: category || 'custom',
-      type: type || 'api_key',
-      quotaInfo: quotaInfo.trim(),
-      notes: notes.trim(),
-      updatedAt: new Date().toISOString(),
-      createdAt: editingSecret?.createdAt || new Date().toISOString()
-    };
+    const now = new Date().toISOString();
 
-    onSave(secretPayload);
+    if (editingSecret) {
+      // Editing = update single secret
+      const en = validEntries[0];
+      const secretPayload = {
+        id: editingSecret.id,
+        providerId: selectedProviderId,
+        title: title.trim(),
+        varName: en.varName.trim().toUpperCase().replace(/[^A-Za-z0-9_]/g, '_'),
+        value: en.value.trim(),
+        projectId: projectId || 'global-keys',
+        environment: environment || 'development',
+        category: category || 'custom',
+        type: type || 'api_key',
+        quotaInfo: quotaInfo.trim(),
+        notes: notes.trim(),
+        updatedAt: now,
+        createdAt: editingSecret?.createdAt || now
+      };
+      // Pass as array for consistency
+      onSave([secretPayload]);
+    } else {
+      // Creating: build array of payloads
+      const payloads = validEntries.map((en, idx) => ({
+        id: `sec_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 7)}`,
+        providerId: selectedProviderId,
+        title: validEntries.length === 1 ? title.trim() : `${title.trim()} — ${en.varName.trim() || (idx + 1)}`,
+        varName: en.varName.trim().toUpperCase().replace(/[^A-Za-z0-9_]/g, '_'),
+        value: en.value.trim(),
+        projectId: projectId || 'global-keys',
+        environment: environment || 'development',
+        category: category || 'custom',
+        type: type || 'api_key',
+        quotaInfo: quotaInfo.trim(),
+        notes: notes.trim(),
+        updatedAt: now,
+        createdAt: now
+      }));
+      onSave(payloads);
+    }
+
     onClose();
   };
 
@@ -171,70 +227,104 @@ export function SecretModal({
           </div>
         )}
 
-        {/* Name & Environment Variable */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Título / Nombre
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ej. Gemini API Key Personal"
-              className="w-full px-3.5 py-2.5 bg-vault-900 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Nombre de Variable (.env)
-            </label>
-            <input
-              type="text"
-              value={varName}
-              onChange={(e) => setVarName(e.target.value)}
-              placeholder="Ej. GEMINI_API_KEY"
-              className="w-full px-3.5 py-2.5 bg-vault-900 border border-slate-700/80 rounded-xl text-cyan-300 font-mono placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500"
-              required
-            />
-          </div>
+        {/* Group Title */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            Título del Grupo / Servicio
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Ej. Notion, Gemini Pro, Supabase..."
+            className="w-full px-3.5 py-2.5 bg-vault-900 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500"
+            required
+          />
         </div>
 
-        {/* Secret Value */}
+        {/* ── Multi-Key Entries ── */}
         <div>
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center justify-between mb-2">
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Valor del Secreto / Clave
+              Variables / Claves Secretas
             </label>
-            <button
-              type="button"
-              onClick={handleGeneratePassword}
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer font-medium"
-            >
-              <Wand2 className="w-3 h-3" />
-              <span>Generar Seguro</span>
-            </button>
+            {!editingSecret && (
+              <button
+                type="button"
+                onClick={addEntry}
+                className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer font-semibold border border-emerald-500/30 px-2 py-1 rounded-lg hover:bg-emerald-500/10 transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Agregar otra clave</span>
+              </button>
+            )}
           </div>
-          
-          <div className="relative">
-            <input
-              type={showValue ? 'text' : 'password'}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={activeTemplate?.placeholder || 'Pega tu clave, token o contraseña aquí...'}
-              className="w-full pl-4 pr-12 py-3 bg-vault-900 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-emerald-500"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowValue(!showValue)}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
-            >
-              {showValue ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
+
+          <div className="space-y-3">
+            {entries.map((en, idx) => (
+              <div key={en.id} className="rounded-xl border border-slate-700/60 bg-vault-900/60 p-3 space-y-2">
+                {entries.length > 1 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Clave #{idx + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeEntry(en.id)}
+                      className="text-slate-600 hover:text-rose-400 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                <div className="grid grid-cols-5 gap-2">
+                  {/* VarName */}
+                  <div className="col-span-2">
+                    <input
+                      type="text"
+                      value={en.varName}
+                      onChange={(e) => updateEntry(en.id, 'varName', e.target.value)}
+                      placeholder="NOMBRE_VARIABLE"
+                      className="w-full px-3 py-2.5 bg-vault-950 border border-slate-700/80 rounded-lg text-cyan-300 font-mono placeholder-slate-600 text-xs focus:outline-none focus:border-cyan-500"
+                      required={idx === 0}
+                    />
+                  </div>
+                  {/* Value */}
+                  <div className="col-span-3 relative">
+                    <input
+                      type={en.showValue ? 'text' : 'password'}
+                      value={en.value}
+                      onChange={(e) => updateEntry(en.id, 'value', e.target.value)}
+                      placeholder={activeTemplate?.placeholder || 'Pega tu clave aquí...'}
+                      className="w-full pl-3 pr-16 py-2.5 bg-vault-950 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-600 font-mono text-xs focus:outline-none focus:border-emerald-500"
+                      required={idx === 0}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
+                      <button
+                        type="button"
+                        title="Generar clave segura"
+                        onClick={() => generateForEntry(en.id)}
+                        className="p-1 text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                      >
+                        <Wand2 className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateEntry(en.id, 'showValue', !en.showValue)}
+                        className="p-1 text-slate-400 hover:text-slate-200 cursor-pointer"
+                      >
+                        {en.showValue ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {!editingSecret && entries.length === 1 && (
+            <p className="text-[11px] text-slate-500 mt-1.5">
+              💡 ¿Tienes varias claves del mismo servicio? Usa <strong className="text-slate-400">Agregar otra clave</strong> para guardarlas todas juntas.
+            </p>
+          )}
         </div>
 
         {/* Project & Environment */}
@@ -316,7 +406,11 @@ export function SecretModal({
             type="submit"
             className="px-6 py-2.5 text-xs font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl shadow-lg shadow-emerald-950/50 transition-all cursor-pointer"
           >
-            {editingSecret ? 'Guardar Cambios' : 'Cifrar y Guardar Secreto'}
+            {editingSecret
+              ? 'Guardar Cambios'
+              : entries.filter(e => e.varName.trim() && e.value.trim()).length > 1
+                ? `Cifrar y Guardar ${entries.filter(e => e.varName.trim() && e.value.trim()).length} Claves`
+                : 'Cifrar y Guardar Secreto'}
           </button>
         </div>
 
