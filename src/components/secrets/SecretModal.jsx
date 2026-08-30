@@ -11,7 +11,6 @@ import {
 import { Modal } from '../common/Modal';
 import { PROVIDER_TEMPLATES, ENVIRONMENTS } from '../../data/providers';
 import { generateSecurePassword } from '../../services/crypto';
-import { useToast } from '../../hooks/useToast';
 
 function newEntry(varName = '', value = '') {
   return { id: `kv_${Date.now()}_${Math.random().toString(36).slice(2,6)}`, varName, value, showValue: false };
@@ -25,9 +24,9 @@ export function SecretModal({
   initialProviderId = null,
   projects = [],
   activeProjectId = 'all',
-  activeEnvironment = 'all'
+  activeEnvironment = 'all',
+  addToast
 }) {
-  const { addToast } = useToast();
   
   // Modes
   const isProjectMode = activeProjectId !== 'all' && activeProjectId != null;

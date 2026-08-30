@@ -809,6 +809,11 @@ function VaultCore() {
                     setPresetProviderId(null);
                     setIsSecretModalOpen(true);
                   }}
+                  onOpenNewProjectEnv={() => {
+                    setEditingSecret(null);
+                    setPresetProviderId(null);
+                    setIsSecretModalOpen(true);
+                  }}
                   onOpenEnvStudio={() => setIsEnvStudioOpen(true)}
                   onEditSecret={(sec) => {
                     setEditingSecret(sec);
@@ -860,9 +865,10 @@ function VaultCore() {
         onSave={handleSaveSecret}
         editingSecret={editingSecret}
         initialProviderId={presetProviderId}
-          activeEnvironment={activeEnvironment}
+        activeEnvironment={activeEnvironment}
         projects={vaultData?.projects || []}
         activeProjectId={activeProjectId}
+        addToast={addToast}
       />
 
       <SecretQuickView
