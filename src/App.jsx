@@ -6,6 +6,7 @@ import {
   saveVault, 
   resetAllVaultData 
 } from './services/storage';
+import { decryptVault } from './services/crypto';
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
@@ -162,7 +163,9 @@ function VaultCore() {
               setVaultData(data);
               setAuthState('UNLOCKED');
               setLastActivityTime(Date.now());
-              syncWithSupabase(data, rememberedMp);
+              autoSyncWithCloud(data, rememberedMp).then(finalData => {
+                setVaultData(finalData);
+              });
             })
             .catch(() => {
               setAuthState('LOCKED');
@@ -328,17 +331,66 @@ function VaultCore() {
         const { meta: cloudMeta, data: cloudEncryptedPackage } = JSON.parse(decryptedPayload);
         
         const localMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1') || '{}');
-        
         const cloudTime = new Date(cloudMeta.updatedAt || 0).getTime();
         const localTime = new Date(localMeta.updatedAt || 0).getTime();
         
-        // If cloud is newer than local, auto-restore
-        if (cloudTime > localTime) {
-          localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(cloudMeta));
-          localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(cloudEncryptedPackage));
-          
-          finalData = await unlockVault(password);
-          addToast('Sincronizado automáticamente con cambios de la nube.', 'success');
+        // If there's a mismatch, we MERGE the data so nothing is ever lost.
+        if (cloudTime !== localTime && cloudTime > 0) {
+          try {
+            const cloudData = await decryptVault(cloudEncryptedPackage, password);
+            
+            let mergedData = { ...finalData };
+            let hasChanges = false;
+            
+            // Merge Projects
+            const localProjIds = new Set((mergedData.projects || []).map(p => p.id));
+            const newCloudProjs = (cloudData.projects || []).filter(p => !localProjIds.has(p.id));
+            if (newCloudProjs.length > 0) {
+              mergedData.projects = [...(mergedData.projects || []), ...newCloudProjs];
+              hasChanges = true;
+            }
+            
+            // Merge Secrets
+            const localSecIds = new Set((mergedData.secrets || []).map(s => s.id));
+            const newCloudSecs = (cloudData.secrets || []).filter(s => !localSecIds.has(s.id));
+            if (newCloudSecs.length > 0) {
+              mergedData.secrets = [...(mergedData.secrets || []), ...newCloudSecs];
+              hasChanges = true;
+            }
+            
+            // Merge Trash
+            const localTrashIds = new Set((mergedData.trash || []).map(s => s.id));
+            const newCloudTrash = (cloudData.trash || []).filter(s => !localTrashIds.has(s.id));
+            if (newCloudTrash.length > 0) {
+              mergedData.trash = [...(mergedData.trash || []), ...newCloudTrash];
+              hasChanges = true;
+            }
+            
+            if (hasChanges) {
+              await saveVault(mergedData, password);
+              finalData = mergedData;
+              addToast('Sincronización Inteligente: Datos combinados exitosamente.', 'success');
+              
+              // Force upload the newly merged master state back to the cloud
+              const newMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
+              const newPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
+              const newPayload = JSON.stringify({ meta: newMeta, data: newPackage });
+              const { encrypted_key: newEk, iv: newIv } = await encryptApiKey(newPayload, userId);
+              
+              await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+              await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
+            } else if (cloudTime > localTime) {
+              // Cloud is strictly newer but no new items found (maybe items were deleted or edited).
+              // In this case, we accept the cloud as the absolute truth.
+              localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(cloudMeta));
+              localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(cloudEncryptedPackage));
+              finalData = await unlockVault(password);
+              addToast('Bóveda actualizada desde la nube.', 'success');
+            }
+            
+          } catch(mergeErr) {
+            console.error("Error merging cloud data:", mergeErr);
+          }
         }
       }
     } catch (err) {
