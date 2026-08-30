@@ -83,26 +83,28 @@ export function SecretCard({
       {/* Card Header */}
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="p-2 rounded-xl bg-vault-900 border border-slate-700/60 shadow-inner shrink-0">
               {getCategoryIcon(secret.category)}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-slate-100 text-sm group-hover:text-emerald-300 transition-colors">
+                <h4 className="font-semibold text-slate-100 text-sm group-hover:text-emerald-300 transition-colors truncate">
                   {secret.title || secret.name || 'Secreto'}
                 </h4>
                 {isFavorite && (
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                 )}
               </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[11px] font-mono text-slate-400 bg-slate-900/90 px-1.5 py-0.2 rounded border border-slate-800">
-                  {secret.varName || secret.key || 'VAR_NAME'}
-                </span>
+              <div className="flex flex-col gap-0.5 mt-0.5">
+                <div className="flex items-center">
+                  <span className="text-[10px] font-mono text-slate-400 bg-slate-900/90 px-1.5 py-0.5 rounded border border-slate-800 truncate max-w-full inline-block">
+                    {secret.varName || secret.key || 'VAR_NAME'}
+                  </span>
+                </div>
                 {projectName && (
-                  <span className="text-[11px] text-slate-400">
-                    • {projectName}
+                  <span className="text-[10px] text-slate-500 font-medium truncate">
+                    {projectName}
                   </span>
                 )}
               </div>
