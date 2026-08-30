@@ -285,6 +285,7 @@ function VaultCore() {
         encrypted_key,
         iv
       });
+      addToast('Respaldo maestro sincronizado con la nube.', 'success');
     } catch(err) {
       console.error('Error in full cloud backup:', err);
     }
@@ -410,7 +411,7 @@ function VaultCore() {
         
         if (wasUpdated) {
           data = { ...data, secrets: syncedSecrets };
-          saveVault(enteredPassword, data);
+          saveVault(data, enteredPassword);
           addToast('Descarga completada y desencriptada.', 'success');
         }
       }
