@@ -305,52 +305,73 @@ function VaultCore() {
   };
 
   // Lifecycle
-  const syncWithSupabase = async (currentData, password) => {
+  const autoSyncWithCloud = async (currentData, password) => {
+    let finalData = { ...currentData };
+    
     try {
-      addToast('Sincronizando bóveda con la nube...', 'info');
       const token = await getToken({ template: 'supabase' });
+      if (!token) return finalData;
       const supabase = createSupabaseClient(token);
       
-      const { data: cloudSecrets, error } = await supabase.from('vault_secrets').select('*');
+      // Cleanup Supabase: delete legacy individual rows so they don't take up space
+      await supabase.from('vault_secrets').delete().neq('provider', 'FULL_VAULT_BACKUP');
       
-      if (!error && cloudSecrets && cloudSecrets.length > 0) {
-        let syncedSecrets = [...(currentData?.secrets || [])];
-        let wasUpdated = false;
+      const { data: backupRows, error } = await supabase
+        .from('vault_secrets')
+        .select('*')
+        .eq('provider', 'FULL_VAULT_BACKUP')
+        .limit(1);
         
-        for (const cloudSec of cloudSecrets) {
-          const localExists = syncedSecrets.find(s => (s.id === cloudSec.id || s.id === cloudSec.encrypted_key));
-          if (!localExists) {
-            try {
-              const decryptedValue = await decryptApiKey(cloudSec.encrypted_key, cloudSec.iv, userId);
-              syncedSecrets.push({
-                id: cloudSec.id,
-                title: cloudSec.provider + " (Nube)",
-                varName: cloudSec.provider.toUpperCase() + "_KEY",
-                value: decryptedValue,
-                providerId: cloudSec.provider,
-                environment: "production",
-                category: "ai",
-                type: "api_key",
-                createdAt: cloudSec.created_at || new Date().toISOString()
-              });
-              wasUpdated = true;
-            } catch (err) {
-              console.error("Error descifrando secreto de nube:", err);
-            }
-          }
-        }
+      if (!error && backupRows && backupRows.length > 0) {
+        const backup = backupRows[0];
+        const decryptedPayload = await decryptApiKey(backup.encrypted_key, backup.iv, userId);
+        const { meta: cloudMeta, data: cloudEncryptedPackage } = JSON.parse(decryptedPayload);
         
-        if (wasUpdated) {
-          const newData = { ...currentData, secrets: syncedSecrets };
-          setVaultData(newData);
-          await saveVault(newData, password);
-          addToast('¡Tus claves antiguas fueron restauradas desde la nube!', 'success');
+        const localMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1') || '{}');
+        
+        const cloudTime = new Date(cloudMeta.updatedAt || 0).getTime();
+        const localTime = new Date(localMeta.updatedAt || 0).getTime();
+        
+        // If cloud is newer than local, auto-restore
+        if (cloudTime > localTime) {
+          localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(cloudMeta));
+          localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(cloudEncryptedPackage));
+          
+          finalData = await unlockVault(password);
+          addToast('Sincronizado automáticamente con cambios de la nube.', 'success');
         }
       }
-    } catch (error) {
-      console.error('Error syncing:', error);
-      addToast('Error al sincronizar con la nube.', 'error');
+    } catch (err) {
+      console.error('Error auto-syncing with cloud:', err);
     }
+    
+    // One-time cleanup for ghost "(Nube)" keys AFTER any potential restore
+    if (finalData.secrets) {
+      const originalLength = finalData.secrets.length;
+      finalData.secrets = finalData.secrets.filter(s => !(s.title && s.title.includes('(Nube)')));
+      if (finalData.secrets.length !== originalLength) {
+        await saveVault(finalData, password);
+        
+        // Push cleaned state to cloud
+        try {
+          const meta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
+          const encryptedPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
+          const payload = JSON.stringify({ meta, data: encryptedPackage });
+          const { encrypted_key, iv } = await encryptApiKey(payload, userId);
+          
+          const token = await getToken({ template: 'supabase' });
+          const supabase = createSupabaseClient(token);
+          await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+          await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key, iv });
+          
+          addToast('Bóveda limpiada de claves fantasmas antiguas.', 'info');
+        } catch(err) {
+          console.error("Error pushing clean vault:", err);
+        }
+      }
+    }
+    
+    return finalData;
   };
 
   const handleSetupComplete = async (newMasterPassword, options) => {
@@ -366,58 +387,15 @@ function VaultCore() {
     addToast('¡Caja fuerte creada y blindada con éxito!', 'success');
     
     // Auto-restaurar de Supabase si reseteó su bóveda
-    await syncWithSupabase(initialized.data, newMasterPassword);
+    const finalData = await autoSyncWithCloud(initialized.data, newMasterPassword);
+    setVaultData(finalData);
   };
 
   const handleUnlock = async (enteredPassword) => {
     let data = await unlockVault(enteredPassword);
     
-    // --- NUEVO: Sincronización desde Supabase ---
-    try {
-      addToast('Sincronizando bóveda con la nube...', 'info');
-      const token = await getToken({ template: 'supabase' });
-      const supabase = createSupabaseClient(token);
-      
-      const { data: cloudSecrets, error } = await supabase.from('vault_secrets').select('*');
-      
-      if (!error && cloudSecrets && cloudSecrets.length > 0) {
-        let syncedSecrets = [...(data?.secrets || [])];
-        let wasUpdated = false;
-        
-        for (const cloudSec of cloudSecrets) {
-          // Chequear si ya lo tenemos localmente
-          const localExists = syncedSecrets.find(s => (s.id === cloudSec.id || s.id === cloudSec.encrypted_key));
-          if (!localExists) {
-            try {
-              // Desencriptar con la llave maestra (Clerk ID)
-              const decryptedValue = await decryptApiKey(cloudSec.encrypted_key, cloudSec.iv, userId);
-              syncedSecrets.push({
-                id: cloudSec.id,
-                title: cloudSec.provider + " (Nube)",
-                varName: cloudSec.provider.toUpperCase() + "_KEY",
-                value: decryptedValue,
-                providerId: cloudSec.provider,
-                environment: "production",
-                category: "ai",
-                type: "api_key",
-                createdAt: cloudSec.created_at
-              });
-              wasUpdated = true;
-            } catch (decErr) {
-              console.error("Error desencriptando llave de la nube:", decErr);
-            }
-          }
-        }
-        
-        if (wasUpdated) {
-          data = { ...data, secrets: syncedSecrets };
-          saveVault(data, enteredPassword);
-          addToast('Descarga completada y desencriptada.', 'success');
-        }
-      }
-    } catch (err) {
-      console.error('Error sincronizando con Supabase:', err);
-    }
+    // --- NUEVO: Sincronización Automática Bidireccional ---
+    data = await autoSyncWithCloud(data, enteredPassword);
     // --------------------------------------------
 
     setMasterPassword(enteredPassword);
