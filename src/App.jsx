@@ -153,7 +153,22 @@ function VaultCore() {
 
   useEffect(() => {
     if (isVaultInitialized()) {
-      setAuthState('LOCKED');
+      const rememberedMp = localStorage.getItem('devvault_remembered_mp');
+      if (rememberedMp) {
+        unlockVault(rememberedMp)
+          .then(data => {
+            setMasterPassword(rememberedMp);
+            setVaultData(data);
+            setAuthState('UNLOCKED');
+            setLastActivityTime(Date.now());
+            syncWithSupabase(data, rememberedMp);
+          })
+          .catch(() => {
+            setAuthState('LOCKED');
+          });
+      } else {
+        setAuthState('LOCKED');
+      }
     } else {
       setAuthState('SETUP');
     }
@@ -203,6 +218,7 @@ function VaultCore() {
 
   useEffect(() => {
     if (authState !== 'UNLOCKED') return;
+    if (localStorage.getItem('devvault_remembered_mp')) return; // Disable auto-lock if rememberMe is on
     const mins = vaultData?.settings?.autoLockMinutes || 15;
     if (mins === 0) return;
 
@@ -230,12 +246,68 @@ function VaultCore() {
   };
 
   // Lifecycle
+  const syncWithSupabase = async (currentData, password) => {
+    try {
+      addToast('Sincronizando bóveda con la nube...', 'info');
+      const token = await getToken({ template: 'supabase' });
+      const supabase = createSupabaseClient(token);
+      
+      const { data: cloudSecrets, error } = await supabase.from('vault_secrets').select('*');
+      
+      if (!error && cloudSecrets && cloudSecrets.length > 0) {
+        let syncedSecrets = [...(currentData?.secrets || [])];
+        let wasUpdated = false;
+        
+        for (const cloudSec of cloudSecrets) {
+          const localExists = syncedSecrets.find(s => (s.id === cloudSec.id || s.id === cloudSec.encrypted_key));
+          if (!localExists) {
+            try {
+              const decryptedValue = await decryptApiKey(cloudSec.encrypted_key, cloudSec.iv, userId);
+              syncedSecrets.push({
+                id: cloudSec.id,
+                title: cloudSec.provider + " (Nube)",
+                varName: cloudSec.provider.toUpperCase() + "_KEY",
+                value: decryptedValue,
+                providerId: cloudSec.provider,
+                environment: "production",
+                category: "ai",
+                type: "api_key",
+                createdAt: cloudSec.created_at || new Date().toISOString()
+              });
+              wasUpdated = true;
+            } catch (err) {
+              console.error("Error descifrando secreto de nube:", err);
+            }
+          }
+        }
+        
+        if (wasUpdated) {
+          const newData = { ...currentData, secrets: syncedSecrets };
+          setVaultData(newData);
+          await saveVault(newData, password);
+          addToast('¡Tus claves antiguas fueron restauradas desde la nube!', 'success');
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing:', error);
+      addToast('Error al sincronizar con la nube.', 'error');
+    }
+  };
+
   const handleSetupComplete = async (newMasterPassword, options) => {
     const initialized = await initVault(newMasterPassword, options);
+    
+    if (options?.rememberMe) {
+      localStorage.setItem('devvault_remembered_mp', newMasterPassword);
+    }
+    
     setMasterPassword(newMasterPassword);
     setVaultData(initialized.data);
     setAuthState('UNLOCKED');
     addToast('¡Caja fuerte creada y blindada con éxito!', 'success');
+    
+    // Auto-restaurar de Supabase si reseteó su bóveda
+    await syncWithSupabase(initialized.data, newMasterPassword);
   };
 
   const handleUnlock = async (enteredPassword) => {
@@ -297,6 +369,7 @@ function VaultCore() {
   };
 
   const handleLockVault = () => {
+    localStorage.removeItem('devvault_remembered_mp');
     setMasterPassword('');
     setVaultData(null);
     setAuthState('LOCKED');

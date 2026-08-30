@@ -6,6 +6,7 @@ export function MasterPasswordSetup({ onComplete }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [autoLockMinutes, setAutoLockMinutes] = useState(15);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +39,7 @@ export function MasterPasswordSetup({ onComplete }) {
     // and trigger "Save Password" prompt before React unmounts this component
     setTimeout(async () => {
       try {
-        await onComplete(password, { autoLockMinutes });
+        await onComplete(password, { autoLockMinutes, rememberMe });
       } catch (err) {
         setError(err.message || 'Error al inicializar la caja fuerte.');
         setLoading(false);
@@ -183,6 +184,19 @@ export function MasterPasswordSetup({ onComplete }) {
               />
               <label htmlFor="terms" className="text-xs text-slate-300 leading-relaxed cursor-pointer select-none">
                 Entiendo que <strong className="text-emerald-400">DevVault utiliza cifrado local de Conocimiento Cero</strong>. No existe ningún servidor central que guarde mi contraseña. Si la olvido, nadie podrá recuperarla salvo mediante una copia de seguridad exportada.
+              </label>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500 focus:ring-cyan-500/50 cursor-pointer"
+              />
+              <label htmlFor="rememberMe" className="text-xs text-slate-300 cursor-pointer select-none">
+                Mantener mi sesión abierta en este navegador (Sobreescribe el Autobloqueo al salir)
               </label>
             </div>
           </div>

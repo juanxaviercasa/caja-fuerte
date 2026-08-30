@@ -4,6 +4,7 @@ import { Lock, Unlock, Eye, EyeOff, ShieldAlert, ArrowRight, RefreshCw, Upload }
 export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
@@ -18,7 +19,7 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
     // Slight delay so the browser password manager catches the successful form submission
     setTimeout(async () => {
       try {
-        await onUnlock(password);
+        await onUnlock(password, rememberMe);
       } catch (err) {
         setError(err.message || 'Contraseña incorrecta.');
         setShake(true);
@@ -69,8 +70,8 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
                 readOnly
               />
               <input
-                id="current-password"
-                name="current-password"
+                id="password"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -83,10 +84,23 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-cyan-400"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
+            </div>
+            
+            <div className="flex items-center mt-3">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label htmlFor="rememberMe" className="ml-2 block text-sm text-slate-400">
+                Mantener mi sesión abierta en este navegador
+              </label>
             </div>
           </div>
 
