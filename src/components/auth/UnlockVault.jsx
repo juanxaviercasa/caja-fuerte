@@ -59,9 +59,20 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
           <div>
             <div className="relative">
               <input
+                type="text"
+                name="username"
+                value="DevVaultUser"
+                autoComplete="username"
+                className="hidden"
+                readOnly
+              />
+              <input
+                id="current-password"
+                name="current-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 placeholder="Ingresa tu Contraseña Maestra..."
                 className="w-full pl-4 pr-12 py-3.5 bg-vault-900/90 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-mono text-sm shadow-inner"
                 autoFocus

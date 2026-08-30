@@ -80,9 +80,20 @@ export function MasterPasswordSetup({ onComplete }) {
                 <Lock className="w-4 h-4" />
               </div>
               <input
+                type="text"
+                name="username"
+                value="DevVaultUser"
+                autoComplete="username"
+                className="hidden"
+                readOnly
+              />
+              <input
+                id="new-password"
+                name="new-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 placeholder="Ingresa una contraseña segura..."
                 className="w-full pl-10 pr-12 py-3 bg-vault-900/90 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/70 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 autoFocus
@@ -124,9 +135,12 @@ export function MasterPasswordSetup({ onComplete }) {
                 <KeyRound className="w-4 h-4" />
               </div>
               <input
+                id="confirm-password"
+                name="confirm-password"
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 placeholder="Repite tu contraseña maestra..."
                 className="w-full pl-10 pr-4 py-3 bg-vault-900/90 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/70 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 required
