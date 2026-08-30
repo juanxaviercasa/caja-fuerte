@@ -303,7 +303,7 @@ function VaultCore() {
   };
 
   // Secret Operations
-    const handleSaveSecret = async (payloads) => {
+  const handleSaveSecret = async (payloads) => {
     // Accept either a single object or an array
     const payloadList = Array.isArray(payloads) ? payloads : [payloads];
     let updatedSecrets = [...(vaultData?.secrets || [])];
@@ -312,17 +312,10 @@ function VaultCore() {
       const existingIndex = updatedSecrets.findIndex(s => s.id === secretPayload.id);
       if (existingIndex >= 0) {
         updatedSecrets[existingIndex] = secretPayload;
-        addToast(`Secreto "${secretPayload.title}" actualizado.`, 'success');
+        addToast(`Secreto actualizado.`, 'success');
       } else {
         updatedSecrets = [secretPayload, ...updatedSecrets];
       }
-    }
-
-    if (payloadList.length > 1) {
-      addToast(`${payloadList.length} claves guardadas en la Nube ✓`, 'success');
-    } else if (payloadList.length === 1) {
-      const existsAlready = (vaultData?.secrets || []).find(s => s.id === payloadList[0].id);
-      if (!existsAlready) addToast(`Secreto "${payloadList[0].title}" guardado en la Nube ✓`, 'success');
     }
 
     saveChanges({
@@ -333,13 +326,20 @@ function VaultCore() {
     try {
       const token = await getToken({ template: 'supabase' });
       const supabase = createSupabaseClient(token);
-      const { encrypted_key, iv } = await encryptApiKey(secretPayload.value, userId);
-      await supabase.from('vault_secrets').upsert({
-        user_id: userId,
-        provider: secretPayload.providerId || 'custom',
-        encrypted_key,
-        iv
+      
+      // Sync all payloads to Supabase
+      const upsertPromises = payloadList.map(async (secretPayload) => {
+        const { encrypted_key, iv } = await encryptApiKey(secretPayload.value, userId);
+        return supabase.from('vault_secrets').upsert({
+          user_id: userId,
+          provider: secretPayload.providerId || 'custom',
+          encrypted_key,
+          iv
+        });
       });
+      
+      await Promise.all(upsertPromises);
+      addToast(`${payloadList.length} clave(s) respaldada(s) en la Nube V`, 'success');
     } catch(err) {
       console.error('Error supabase:', err);
     }
