@@ -15,15 +15,17 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
     setError('');
     setLoading(true);
 
-    try {
-      await onUnlock(password);
-    } catch (err) {
-      setError(err.message || 'Contraseña incorrecta.');
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-    } finally {
-      setLoading(false);
-    }
+    // Slight delay so the browser password manager catches the successful form submission
+    setTimeout(async () => {
+      try {
+        await onUnlock(password);
+      } catch (err) {
+        setError(err.message || 'Contraseña incorrecta.');
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+        setLoading(false);
+      }
+    }, 300);
   };
 
   return (
@@ -63,7 +65,7 @@ export function UnlockVault({ onUnlock, onResetRequest, onImportBackupRequest })
                 name="username"
                 value="DevVaultUser"
                 autoComplete="username"
-                className="hidden"
+                style={{ position: 'absolute', width: '1px', height: '1px', top: '-9999px', opacity: 0 }}
                 readOnly
               />
               <input

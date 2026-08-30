@@ -33,13 +33,17 @@ export function MasterPasswordSetup({ onComplete }) {
     }
 
     setLoading(true);
-    try {
-      await onComplete(password, { autoLockMinutes });
-    } catch (err) {
-      setError(err.message || 'Error al inicializar la caja fuerte.');
-    } finally {
-      setLoading(false);
-    }
+    
+    // Slight delay to allow browser to register the form submission
+    // and trigger "Save Password" prompt before React unmounts this component
+    setTimeout(async () => {
+      try {
+        await onComplete(password, { autoLockMinutes });
+      } catch (err) {
+        setError(err.message || 'Error al inicializar la caja fuerte.');
+        setLoading(false);
+      }
+    }, 300);
   };
 
   return (
@@ -84,7 +88,7 @@ export function MasterPasswordSetup({ onComplete }) {
                 name="username"
                 value="DevVaultUser"
                 autoComplete="username"
-                className="hidden"
+                style={{ position: 'absolute', width: '1px', height: '1px', top: '-9999px', opacity: 0 }}
                 readOnly
               />
               <input
