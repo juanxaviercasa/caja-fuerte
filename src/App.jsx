@@ -152,27 +152,57 @@ function VaultCore() {
   }, []);
 
   useEffect(() => {
-    if (isVaultInitialized()) {
-      const rememberedMp = localStorage.getItem('devvault_remembered_mp');
-      if (rememberedMp) {
-        unlockVault(rememberedMp)
-          .then(data => {
-            setMasterPassword(rememberedMp);
-            setVaultData(data);
-            setAuthState('UNLOCKED');
-            setLastActivityTime(Date.now());
-            syncWithSupabase(data, rememberedMp);
-          })
-          .catch(() => {
-            setAuthState('LOCKED');
-          });
+    const checkInit = async () => {
+      if (isVaultInitialized()) {
+        const rememberedMp = localStorage.getItem('devvault_remembered_mp');
+        if (rememberedMp) {
+          unlockVault(rememberedMp)
+            .then(data => {
+              setMasterPassword(rememberedMp);
+              setVaultData(data);
+              setAuthState('UNLOCKED');
+              setLastActivityTime(Date.now());
+              syncWithSupabase(data, rememberedMp);
+            })
+            .catch(() => {
+              setAuthState('LOCKED');
+            });
+        } else {
+          setAuthState('LOCKED');
+        }
       } else {
-        setAuthState('LOCKED');
+        // Try to fetch full backup from cloud
+        try {
+          const token = await getToken({ template: 'supabase' });
+          if (token) {
+            const supabase = createSupabaseClient(token);
+            const { data: backupRows, error } = await supabase
+              .from('vault_secrets')
+              .select('*')
+              .eq('provider', 'FULL_VAULT_BACKUP')
+              .limit(1);
+            
+            if (!error && backupRows && backupRows.length > 0) {
+              const backup = backupRows[0];
+              const decryptedPayload = await decryptApiKey(backup.encrypted_key, backup.iv, userId);
+              const { meta, data: encryptedPackage } = JSON.parse(decryptedPayload);
+              
+              localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(meta));
+              localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(encryptedPackage));
+              
+              setAuthState('LOCKED');
+              addToast('Bóveda encontrada en la nube. Por favor, desbloquéala con tu contraseña maestra.', 'info');
+              return;
+            }
+          }
+        } catch(err) {
+          console.error("Error checking for cloud backup", err);
+        }
+        setAuthState('SETUP');
       }
-    } else {
-      setAuthState('SETUP');
-    }
-  }, []);
+    };
+    checkInit();
+  }, [getToken, userId]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('devvault-theme');
@@ -233,11 +263,39 @@ function VaultCore() {
     return () => clearInterval(interval);
   }, [authState, lastActivityTime, vaultData?.settings?.autoLockMinutes]);
 
+  const syncFullVaultToCloud = async () => {
+    try {
+      const token = await getToken({ template: 'supabase' });
+      if (!token) return;
+      const supabase = createSupabaseClient(token);
+      
+      const meta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
+      const encryptedPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
+      
+      if (!meta || !encryptedPackage) return;
+      
+      const payload = JSON.stringify({ meta, data: encryptedPackage });
+      const { encrypted_key, iv } = await encryptApiKey(payload, userId);
+      
+      await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+      
+      await supabase.from('vault_secrets').insert({
+        user_id: userId,
+        provider: 'FULL_VAULT_BACKUP',
+        encrypted_key,
+        iv
+      });
+    } catch(err) {
+      console.error('Error in full cloud backup:', err);
+    }
+  };
+
   const saveChanges = async (newData) => {
     setVaultData(newData);
     if (masterPassword && authState === 'UNLOCKED') {
       try {
         await saveVault(newData, masterPassword);
+        await syncFullVaultToCloud();
       } catch (err) {
         console.error('Error saving vault:', err);
         addToast('Error al guardar cambios', 'error');
@@ -575,6 +633,38 @@ function VaultCore() {
   const handleRestoreVaultData = (restoredVault) => {
     saveChanges(restoredVault);
     addToast('¡Caja fuerte restaurada correctamente desde el respaldo!', 'success');
+  };
+
+  const handleForceRestoreFromCloud = async () => {
+    try {
+      addToast('Buscando respaldo en la nube...', 'info');
+      const token = await getToken({ template: 'supabase' });
+      if (!token) return;
+      const supabase = createSupabaseClient(token);
+      
+      const { data: backupRows, error } = await supabase
+        .from('vault_secrets')
+        .select('*')
+        .eq('provider', 'FULL_VAULT_BACKUP')
+        .limit(1);
+        
+      if (!error && backupRows && backupRows.length > 0) {
+        const backup = backupRows[0];
+        const decryptedPayload = await decryptApiKey(backup.encrypted_key, backup.iv, userId);
+        const { meta, data: encryptedPackage } = JSON.parse(decryptedPayload);
+        
+        localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(meta));
+        localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(encryptedPackage));
+        
+        addToast('Bóveda restaurada. Por favor, desbloquéala de nuevo.', 'success');
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        addToast('No se encontró ningún respaldo completo en la nube.', 'error');
+      }
+    } catch(err) {
+      console.error(err);
+      addToast('Error al restaurar desde la nube.', 'error');
+    }
   };
 
   const handleRequestResetVault = () => {
@@ -937,6 +1027,7 @@ function VaultCore() {
           addToast('Contraseña maestra actualizada.', 'success');
         }}
         onRequestResetVault={handleRequestResetVault}
+        onForceRestoreFromCloud={handleForceRestoreFromCloud}
       />
 
       {/* 4. Pro Tools Modals */}

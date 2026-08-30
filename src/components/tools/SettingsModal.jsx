@@ -21,7 +21,8 @@ export function SettingsModal({
   masterPassword,
   onUpdateSettings,
   onPasswordChanged,
-  onRequestResetVault
+  onRequestResetVault,
+  onForceRestoreFromCloud
 }) {
   const [autoLockMinutes, setAutoLockMinutes] = useState(vaultData?.settings?.autoLockMinutes || 15);
   
@@ -200,6 +201,21 @@ export function SettingsModal({
             <span>Arquitectura:</span>
             <span className="text-slate-200 font-semibold">Zero-Knowledge Local</span>
           </div>
+        </div>
+
+        {/* Cloud Sync */}
+        <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 flex items-center justify-between">
+          <div>
+            <h4 className="font-bold text-xs text-indigo-300">Sincronización en la Nube</h4>
+            <p className="text-[11px] text-slate-500">Recuperar tu bóveda completa desde Supabase.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onForceRestoreFromCloud}
+            className="px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+          >
+            Restaurar Nube
+          </button>
         </div>
 
         {/* Danger Zone */}
