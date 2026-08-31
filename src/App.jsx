@@ -285,14 +285,25 @@ function VaultCore() {
         const payload = JSON.stringify({ meta, data: encryptedPackage });
         const { encrypted_key, iv } = await encryptApiKey(payload, userId);
         
-        await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+        const { error: delErr } = await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+        if (delErr) {
+          console.error("Delete error:", delErr);
+          addToast(`Error al limpiar nube: ${delErr.message}`, 'error');
+        }
         
-        await supabase.from('vault_secrets').insert({
+        const { error: insErr } = await supabase.from('vault_secrets').insert({
           user_id: userId,
           provider: 'FULL_VAULT_BACKUP',
           encrypted_key,
           iv
         });
+        
+        if (insErr) {
+          console.error("Insert error:", insErr);
+          addToast(`Error al subir a nube: ${insErr.message}`, 'error');
+        } else {
+          // addToast('Respaldo maestro subido a la nube.', 'success');
+        }
       } catch(err) {
         console.error('Error in full cloud backup:', err);
       }
@@ -380,10 +391,14 @@ function VaultCore() {
             const newPayload = JSON.stringify({ meta: newMeta, data: newPackage });
             const { encrypted_key: newEk, iv: newIv } = await encryptApiKey(newPayload, userId);
             
-            await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
-            await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
+            const { error: delErr } = await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+            const { error: insErr } = await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
             
-            addToast('Desincronización resuelta por fusión.', 'success');
+            if (insErr || delErr) {
+              addToast(`Error guardando fusión: ${(insErr || delErr).message}`, 'error');
+            } else {
+              addToast('Desincronización resuelta por fusión.', 'success');
+            }
           } catch(err) {
             console.error("Error en fusión de desempate:", err);
           }
