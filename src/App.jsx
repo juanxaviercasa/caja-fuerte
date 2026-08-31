@@ -266,32 +266,37 @@ function VaultCore() {
     return () => clearInterval(interval);
   }, [authState, lastActivityTime, vaultData?.settings?.autoLockMinutes]);
 
-  const syncFullVaultToCloud = async () => {
-    try {
-      const token = await getToken({ template: 'supabase' });
-      if (!token) return;
-      const supabase = createSupabaseClient(token);
-      
-      const meta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
-      const encryptedPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
-      
-      if (!meta || !encryptedPackage) return;
-      
-      const payload = JSON.stringify({ meta, data: encryptedPackage });
-      const { encrypted_key, iv } = await encryptApiKey(payload, userId);
-      
-      await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
-      
-      await supabase.from('vault_secrets').insert({
-        user_id: userId,
-        provider: 'FULL_VAULT_BACKUP',
-        encrypted_key,
-        iv
-      });
-      addToast('Respaldo maestro sincronizado con la nube.', 'success');
-    } catch(err) {
-      console.error('Error in full cloud backup:', err);
+  const syncTimeoutRef = useRef(null);
+  const syncFullVaultToCloud = () => {
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
     }
+    syncTimeoutRef.current = setTimeout(async () => {
+      try {
+        const token = await getToken({ template: 'supabase' });
+        if (!token) return;
+        const supabase = createSupabaseClient(token);
+        
+        const meta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
+        const encryptedPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
+        
+        if (!meta || !encryptedPackage) return;
+        
+        const payload = JSON.stringify({ meta, data: encryptedPackage });
+        const { encrypted_key, iv } = await encryptApiKey(payload, userId);
+        
+        await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+        
+        await supabase.from('vault_secrets').insert({
+          user_id: userId,
+          provider: 'FULL_VAULT_BACKUP',
+          encrypted_key,
+          iv
+        });
+      } catch(err) {
+        console.error('Error in full cloud backup:', err);
+      }
+    }, 1000); // 1 second debounce
   };
 
   const saveChanges = async (newData) => {
@@ -471,31 +476,12 @@ function VaultCore() {
       }
     }
 
-    saveChanges({
+    await saveChanges({
       ...vaultData,
       secrets: updatedSecrets
     });
-
-    try {
-      const token = await getToken({ template: 'supabase' });
-      const supabase = createSupabaseClient(token);
-      
-      // Sync all payloads to Supabase
-      const upsertPromises = payloadList.map(async (secretPayload) => {
-        const { encrypted_key, iv } = await encryptApiKey(secretPayload.value, userId);
-        return supabase.from('vault_secrets').upsert({
-          user_id: userId,
-          provider: secretPayload.providerId || 'custom',
-          encrypted_key,
-          iv
-        });
-      });
-      
-      await Promise.all(upsertPromises);
-      addToast(`${payloadList.length} clave(s) respaldada(s) en la Nube V`, 'success');
-    } catch(err) {
-      console.error('Error supabase:', err);
-    }
+    
+    addToast(`${payloadList.length} clave(s) respaldada(s) localmente y en la nube.`, 'success');
   };
 
   const handleDeleteSecret = (secret) => {
