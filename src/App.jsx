@@ -357,51 +357,55 @@ function VaultCore() {
           return finalData; // Perfectly in sync
         }
 
-        // LÓGICA DEL USUARIO: "Cualquier última actualización tiene que ser la actual"
-        if (cloudTime > localTime) {
-          // La nube es más reciente. Sobreescribimos local (esto respeta las eliminaciones).
-          localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(cloudMeta));
-          localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(cloudEncryptedPackage));
-          finalData = await unlockVault(password);
-          addToast('Bóveda sincronizada con la última actualización.', 'success');
-        } 
-        // CASO DE DESINCRONIZACIÓN (Empate técnico de fechas, pero datos diferentes)
-        else if (cloudTime === localTime) {
-          try {
-            const cloudData = await decryptVault(cloudEncryptedPackage, password);
-            let mergedData = { ...finalData };
-            
-            // Unión por fuerza bruta solo para resolver el desempate inicial
-            const mergeArrays = (localArr = [], cloudArr = []) => {
-              const localMap = new Map(localArr.map(i => [i.id, i]));
-              const cloudMap = new Map(cloudArr.map(i => [i.id, i]));
-              return Array.from(new Map([...localMap, ...cloudMap]).values());
-            };
-            
-            mergedData.projects = mergeArrays(mergedData.projects, cloudData.projects);
-            mergedData.secrets = mergeArrays(mergedData.secrets, cloudData.secrets);
-            mergedData.trash = mergeArrays(mergedData.trash, cloudData.trash);
-            
-            await saveVault(mergedData, password);
-            finalData = mergedData;
-            
-            // Subir la fusión a la nube para destrabar el empate
-            const newMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
-            const newPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
-            const newPayload = JSON.stringify({ meta: newMeta, data: newPackage });
-            const { encrypted_key: newEk, iv: newIv } = await encryptApiKey(newPayload, userId);
-            
-            const { error: delErr } = await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
-            const { error: insErr } = await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
-            
-            if (insErr || delErr) {
-              addToast(`Error guardando fusión: ${(insErr || delErr).message}`, 'error');
-            } else {
-              addToast('Desincronización resuelta por fusión.', 'success');
-            }
-          } catch(err) {
-            console.error("Error en fusión de desempate:", err);
+        // Tombstone-Aware Union: Resuelve cambios concurrentes sin borrar ni revivir items
+        try {
+          const cloudData = await decryptVault(cloudEncryptedPackage, password);
+          let mergedData = { ...finalData };
+          
+          // 1. Juntar todas las papeleras (Tombstones)
+          const allTrashMap = new Map();
+          (mergedData.trash || []).forEach(t => allTrashMap.set(t.id, t));
+          (cloudData.trash || []).forEach(t => allTrashMap.set(t.id, t));
+          const trashedIds = new Set(allTrashMap.keys());
+          
+          mergedData.trash = Array.from(allTrashMap.values());
+          
+          // 2. Fusionar Proyectos y Secretos, ignorando los que están en la papelera
+          const mergeActive = (localArr = [], cloudArr = []) => {
+            const activeMap = new Map();
+            // Primero la nube (así las ediciones de la nube tienen prioridad inicial)
+            cloudArr.forEach(item => {
+              if (!trashedIds.has(item.id)) activeMap.set(item.id, item);
+            });
+            // Luego lo local (sobreescribe la nube, el dispositivo local siempre gana en conflicto)
+            localArr.forEach(item => {
+              if (!trashedIds.has(item.id)) activeMap.set(item.id, item);
+            });
+            return Array.from(activeMap.values());
+          };
+          
+          mergedData.projects = mergeActive(mergedData.projects, cloudData.projects);
+          mergedData.secrets = mergeActive(mergedData.secrets, cloudData.secrets);
+          
+          await saveVault(mergedData, password);
+          finalData = mergedData;
+          
+          // Subir la fusión definitiva a la nube
+          const newMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
+          const newPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
+          const newPayload = JSON.stringify({ meta: newMeta, data: newPackage });
+          const { encrypted_key: newEk, iv: newIv } = await encryptApiKey(newPayload, userId);
+          
+          const { error: delErr } = await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
+          const { error: insErr } = await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
+          
+          if (insErr || delErr) {
+            addToast(`Error guardando fusión: ${(insErr || delErr).message}`, 'error');
+          } else {
+            addToast('Sincronización Inteligente: Datos de ambos dispositivos fusionados.', 'success');
           }
+        } catch(err) {
+          console.error("Error en fusión inteligente:", err);
         }
       }
     } catch (err) {
