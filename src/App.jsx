@@ -339,7 +339,7 @@ function VaultCore() {
         .from('vault_secrets')
         .select('*')
         .eq('provider', 'FULL_VAULT_BACKUP')
-        .order('id', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(1);
         
       if (!error && backupRows && backupRows.length > 0) {
