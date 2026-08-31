@@ -328,71 +328,48 @@ function VaultCore() {
       if (!error && backupRows && backupRows.length > 0) {
         const backup = backupRows[0];
         const decryptedPayload = await decryptApiKey(backup.encrypted_key, backup.iv, userId);
-        const { data: cloudEncryptedPackage } = JSON.parse(decryptedPayload);
+        const { meta: cloudMeta, data: cloudEncryptedPackage } = JSON.parse(decryptedPayload);
+        
+        const localMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1') || '{}');
+        const cloudTime = new Date(cloudMeta.updatedAt || 0).getTime();
+        const localTime = new Date(localMeta.updatedAt || 0).getTime();
         
         const localPackageString = localStorage.getItem('DEVVAULT_DATA_V1');
         const cloudPackageString = JSON.stringify(cloudEncryptedPackage);
         
-        // If the packages are completely identical, no sync is needed.
         if (localPackageString === cloudPackageString) {
-          return finalData;
+          return finalData; // Perfectly in sync
         }
 
-        // Packages differ! We must do a robust two-way union.
-        try {
-          const cloudData = await decryptVault(cloudEncryptedPackage, password);
-          
-          let mergedData = { ...finalData };
-          let localNeedsUpdate = false;
-          let cloudNeedsUpdate = false;
-          
-          // Helper for robust union
-          const mergeArrays = (localArr = [], cloudArr = []) => {
-            const localMap = new Map(localArr.map(i => [i.id, i]));
-            const cloudMap = new Map(cloudArr.map(i => [i.id, i]));
+        // LÓGICA DEL USUARIO: "Cualquier última actualización tiene que ser la actual"
+        if (cloudTime > localTime) {
+          // La nube es más reciente. Sobreescribimos local (esto respeta las eliminaciones).
+          localStorage.setItem('DEVVAULT_META_V1', JSON.stringify(cloudMeta));
+          localStorage.setItem('DEVVAULT_DATA_V1', JSON.stringify(cloudEncryptedPackage));
+          finalData = await unlockVault(password);
+          addToast('Bóveda sincronizada con la última actualización.', 'success');
+        } 
+        // CASO DE DESINCRONIZACIÓN (Empate técnico de fechas, pero datos diferentes)
+        else if (cloudTime === localTime) {
+          try {
+            const cloudData = await decryptVault(cloudEncryptedPackage, password);
+            let mergedData = { ...finalData };
             
-            let didAddLocal = false;
-            let didAddCloud = false;
+            // Unión por fuerza bruta solo para resolver el desempate inicial
+            const mergeArrays = (localArr = [], cloudArr = []) => {
+              const localMap = new Map(localArr.map(i => [i.id, i]));
+              const cloudMap = new Map(cloudArr.map(i => [i.id, i]));
+              return Array.from(new Map([...localMap, ...cloudMap]).values());
+            };
             
-            for (const cItem of cloudArr) {
-              if (!localMap.has(cItem.id)) {
-                didAddLocal = true;
-              }
-            }
+            mergedData.projects = mergeArrays(mergedData.projects, cloudData.projects);
+            mergedData.secrets = mergeArrays(mergedData.secrets, cloudData.secrets);
+            mergedData.trash = mergeArrays(mergedData.trash, cloudData.trash);
             
-            for (const lItem of localArr) {
-              if (!cloudMap.has(lItem.id)) {
-                didAddCloud = true;
-              }
-            }
-            
-            const merged = Array.from(new Map([...localMap, ...cloudMap]).values());
-            return { merged, didAddLocal, didAddCloud };
-          };
-          
-          // Merge Projects
-          const pResult = mergeArrays(mergedData.projects, cloudData.projects);
-          mergedData.projects = pResult.merged;
-          if (pResult.didAddLocal) localNeedsUpdate = true;
-          if (pResult.didAddCloud) cloudNeedsUpdate = true;
-          
-          // Merge Secrets
-          const sResult = mergeArrays(mergedData.secrets, cloudData.secrets);
-          mergedData.secrets = sResult.merged;
-          if (sResult.didAddLocal) localNeedsUpdate = true;
-          if (sResult.didAddCloud) cloudNeedsUpdate = true;
-          
-          // Merge Trash
-          const tResult = mergeArrays(mergedData.trash, cloudData.trash);
-          mergedData.trash = tResult.merged;
-          if (tResult.didAddLocal) localNeedsUpdate = true;
-          if (tResult.didAddCloud) cloudNeedsUpdate = true;
-          
-          if (localNeedsUpdate || cloudNeedsUpdate) {
             await saveVault(mergedData, password);
             finalData = mergedData;
             
-            // Push the perfect union back to the cloud so the next machine gets it
+            // Subir la fusión a la nube para destrabar el empate
             const newMeta = JSON.parse(localStorage.getItem('DEVVAULT_META_V1'));
             const newPackage = JSON.parse(localStorage.getItem('DEVVAULT_DATA_V1'));
             const newPayload = JSON.stringify({ meta: newMeta, data: newPackage });
@@ -401,11 +378,10 @@ function VaultCore() {
             await supabase.from('vault_secrets').delete().eq('provider', 'FULL_VAULT_BACKUP');
             await supabase.from('vault_secrets').insert({ user_id: userId, provider: 'FULL_VAULT_BACKUP', encrypted_key: newEk, iv: newIv });
             
-            addToast('Sincronización Total: Datos fusionados con éxito en todos los dispositivos.', 'success');
+            addToast('Desincronización resuelta por fusión.', 'success');
+          } catch(err) {
+            console.error("Error en fusión de desempate:", err);
           }
-          
-        } catch(mergeErr) {
-          console.error("Error doing two-way union merge:", mergeErr);
         }
       }
     } catch (err) {
